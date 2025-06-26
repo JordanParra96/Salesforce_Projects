@@ -38,7 +38,12 @@ jobs:
 
       # Lint LWC / Aura
       - name: "Lint Lightning Web Components / Aura Components"
-        run: npm run lint
+        run: |
+          if find ./force-app/main/default/lwc -mindepth 1 -type d | grep -q .; then
+            npm run lint
+          else
+            echo "No LWC components found. Skipping lint."
+          fi
 
       # LWC unit tests
       - name: "Unit test Lightning Web Components"
@@ -108,7 +113,12 @@ jobs:
 
       # Delete temporary test file that Codecov is unable to parse
       - name: "Delete coverage file (temporary step)"
-        run: rm ./tests/apex/test-result-707*-codecoverage.json
+        run: |
+          if ls ./force-app/main/default/classes/*.cls 1> /dev/null 2>&1; then
+            rm ./tests/apex/test-result-707*-codecoverage.json
+          else
+            echo "No Apex classes found to delete coverage file."
+          fi
 
       # Upload code coverage data
       - name: "Upload code coverage for Apex to Codecov.io"
