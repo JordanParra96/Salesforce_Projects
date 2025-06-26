@@ -99,7 +99,12 @@ jobs:
 
       # Run Apex tests in current org org
       - name: "Run Apex tests"
-        run: sf apex test run -c -r human -d ./tests/apex -w 20
+        run: |
+          if ls ./force-app/main/default/classes/*.cls 1> /dev/null 2>&1; then
+            sf apex test run -c -r human -d ./tests/apex -w 20
+          else
+            echo "No Apex classes found to scan."
+          fi
 
       # Delete temporary test file that Codecov is unable to parse
       - name: "Delete coverage file (temporary step)"
