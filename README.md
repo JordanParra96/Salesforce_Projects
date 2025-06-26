@@ -1,18 +1,18 @@
-# Salesforce DX Project: Next Steps
+# Salesforce Projects Repository
 
-Now that you’ve created a Salesforce DX project, what’s next? Here are some documentation resources to get you started.
+[![CI Workflow](https://github.com/JordanParra96/Salesforce_Projects/workflows/CI/badge.svg)](https://github.com/JordanParra96/Salesforce_Projects/actions?query=workflow%3ACI)[![codecov](https://codecov.io/gh/JordanParra96/Salesforce_Projects/branch/main/graph/badge.svg)](https://codecov.io/gh/JordanParra96/Salesforce_Projects)
 
-## How Do You Plan to Deploy Your Changes?
+this repository contains the metadata of all the projects made for trailhead, there I will be uploading and validating each one to keep the health of the repository in optimal conditions.
 
-Do you want to deploy a set of changes, or create a self-contained application? Choose a [development model](https://developer.salesforce.com/tools/vscode/en/user-guide/development-models).
+> [!IMPORTANT]
+> As it is an environment where I do testing, it is highly likely that not everything that is there follows 100% best practices and the latest trends, it is just a guide. 🏖️
 
-## Configure Your Salesforce DX Project
+## Table of contents
 
-The `sfdx-project.json` file contains useful configuration information for your project. See [Salesforce DX Project Configuration](https://developer.salesforce.com/docs/atlas.en-us.sfdx_dev.meta/sfdx_dev/sfdx_dev_ws_config.htm) in the _Salesforce DX Developer Guide_ for details about this file.
+- [Projects](#projects)
 
-## Read All About It
+- [Modules](#modules)
 
-- [Salesforce Extensions Documentation](https://developer.salesforce.com/tools/vscode/)
-- [Salesforce CLI Setup Guide](https://developer.salesforce.com/docs/atlas.en-us.sfdx_setup.meta/sfdx_setup/sfdx_setup_intro.htm)
-- [Salesforce DX Developer Guide](https://developer.salesforce.com/docs/atlas.en-us.sfdx_dev.meta/sfdx_dev/sfdx_dev_intro.htm)
-- [Salesforce CLI Command Reference](https://developer.salesforce.com/docs/atlas.en-us.sfdx_cli_reference.meta/sfdx_cli_reference/cli_reference.htm)
+## projects
+
+- [Get Started with Salesforce Development](https://trailhead.salesforce.com/content/learn/projects/get-started-with-salesforce-development)
