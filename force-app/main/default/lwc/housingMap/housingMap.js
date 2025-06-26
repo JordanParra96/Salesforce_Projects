@@ -1,7 +1,7 @@
-import { LightningElement, wire } from "lwc";
+import { LightningElement, wire, track } from "lwc";
 import getHouses from "@salesforce/apex/HouseService.getRecords";
 export default class HousingMap extends LightningElement {
-  mapMarkers;
+  @track mapMarkers;
   error;
   @wire(getHouses)
   wiredHouses({ error, data }) {
