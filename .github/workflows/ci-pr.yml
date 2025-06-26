@@ -64,7 +64,12 @@ jobs:
       - name: Setup PMD
         uses: legetz/setup-pmd@7.1.0
       - name: APEX full scan
-        run: pmd check --dir ./force-app/main/default/classes/*.cls --rulesets ./ruleset.xml -f text --no-fail-on-error
+        run: |
+          if ls ./force-app/main/default/classes/*.cls 1> /dev/null 2>&1; then
+            pmd check --dir ./force-app/main/default/classes/*.cls --rulesets ./ruleset.xml -f text
+          else
+            echo "No Apex classes found to scan."
+          fi
 
       # Install Salesforce CLI
       - name: "Install Salesforce CLI"
