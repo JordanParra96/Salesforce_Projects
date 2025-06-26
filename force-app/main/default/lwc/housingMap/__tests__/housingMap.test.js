@@ -7,7 +7,7 @@ import { registerApexTestWireAdapter } from "@salesforce/sfdx-lwc-jest";
 const getHousesAdapter = registerApexTestWireAdapter(getHouses);
 
 // Helper
-const flushPromises = () => new Promise((resolve) => setTimeout(resolve));
+const flushPromises = () => Promise.resolve().then(() => {});
 
 const mockData = [
   {
