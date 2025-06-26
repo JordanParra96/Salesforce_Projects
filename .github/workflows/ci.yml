@@ -42,7 +42,12 @@ jobs:
 
       # Lint LWC / Aura
       - name: "Lint Lightning Web Components / Aura Components"
-        run: npm run lint
+        run: |
+          if find ./force-app/main/default/lwc -mindepth 1 -type d | grep -q .; then
+            npm run lint
+          else
+            echo "No LWC components found. Skipping lint."
+          fi
 
       # LWC unit tests
       - name: "Unit test Lightning Web Components"
@@ -68,7 +73,12 @@ jobs:
       - name: Setup PMD
         uses: legetz/setup-pmd@7.1.0
       - name: APEX full scan
-        run: pmd check --dir ./force-app/main/default/classes/*.cls --rulesets ./ruleset.xml -f text
+        run: |
+          if ls ./force-app/main/default/classes/*.cls 1> /dev/null 2>&1; then
+            pmd check --dir ./force-app/main/default/classes/*.cls --rulesets ./ruleset.xml -f text
+          else
+            echo "No Apex classes found to scan."
+          fi
 
       # Install Salesforce CLI
       - name: "Install Salesforce CLI"
@@ -98,11 +108,21 @@ jobs:
 
       # Run Apex tests in current org org
       - name: "Run Apex tests"
-        run: sf apex test run -c -r human -d ./tests/apex -w 20
+        run: |
+          if ls ./force-app/main/default/classes/*.cls 1> /dev/null 2>&1; then
+            sf apex test run -c -r human -d ./tests/apex -w 20
+          else
+            echo "No Apex classes found to scan."
+          fi
 
       # Delete temporary test file that Codecov is unable to parse
       - name: "Delete coverage file (temporary step)"
-        run: rm ./tests/apex/test-result-707*-codecoverage.json
+        run: |
+          if ls ./force-app/main/default/classes/*.cls 1> /dev/null 2>&1; then
+            rm ./tests/apex/test-result-707*-codecoverage.json
+          else
+            echo "No Apex classes found to delete coverage file."
+          fi
 
       # Upload code coverage data
       - name: "Upload code coverage for Apex to Codecov.io"
