@@ -21,3 +21,6 @@ this repository contains the metadata of all the projects made for trailhead, th
 
 - [Apex Enterprise Patterns: Service Layer](https://trailhead.salesforce.com/content/learn/modules/apex_patterns_sl)
   For the development of this module is neccesary to deploy [ApexMocks](https://githubsfdeploy.herokuapp.com/?owner=apex-enterprise-patterns&repo=fflib-apex-mocks) and [Apex Common](https://githubsfdeploy.herokuapp.com/?owner=apex-enterprise-patterns&repo=fflib-apex-common) open source libraries
+
+- [Apex Enterprise Patterns: Domain & Selector Layers](https://trailhead.salesforce.com/content/learn/modules/apex_patterns_dsl)
+  For the development of this module is neccesary to deploy [ApexMocks](https://githubsfdeploy.herokuapp.com/?owner=apex-enterprise-patterns&repo=fflib-apex-mocks) and [Apex Common](https://githubsfdeploy.herokuapp.com/?owner=apex-enterprise-patterns&repo=fflib-apex-common) open source libraries
