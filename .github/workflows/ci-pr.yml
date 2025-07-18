@@ -109,8 +109,9 @@ jobs:
           test_classes=$(grep -l -L '^public class fflib_' ./force-app/main/default/classes/*.cls | xargs -n1 basename | sed 's/\.cls$//')
           if [ -n "$test_classes" ]; then
             sf apex test run -c -r human -d ./tests/apex -w 20 -t "$test_classes"
-          else
+            else
             echo "No test classes found excluding fflib_."
+            exit 1
           fi
           fi
 
