@@ -106,11 +106,11 @@ jobs:
       - name: "Run Apex tests"
         run: |
           if ls ./force-app/main/default/classes/*.cls 1> /dev/null 2>&1; then
-          test_classes=$(grep -l -L '^public class fflib_' ./force-app/main/default/classes/*.cls | xargs -n1 basename | sed 's/\.cls$//')
+          test_classes=$(grep -l -L '^public class fflib_' ./force-app/main/default/classes/*.cls | xargs -n1 -I{} sh -c "grep -q '@isTest' {} && basename {} .cls" | xargs)
           if [ -n "$test_classes" ]; then
             sf apex test run -c -r human -d ./tests/apex -w 20 -t "$test_classes"
-            else
-            echo "No test classes found excluding fflib_."
+          else
+            echo "No test classes with @isTest found excluding fflib_."
             exit 1
           fi
           fi
