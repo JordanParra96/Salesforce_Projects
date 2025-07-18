@@ -106,9 +106,14 @@ jobs:
       - name: "Run Apex tests"
         run: |
           if ls ./force-app/main/default/classes/*.cls 1> /dev/null 2>&1; then
-            sf apex test run -c -r human -d ./tests/apex -w 20
+          test_classes=$(grep -l -L '^public class fflib_' ./force-app/main/default/classes/*.cls | xargs -n1 -I{} sh -c "grep -q '@isTest' {} && basename {} .cls" | xargs)
+          test_classes_csv=$(echo "$test_classes" | tr ' ' ',')
+          if [ -n "$test_classes_csv" ]; then
+            sf apex test run -c -r human -d ./tests/apex -w 20 -t "$test_classes_csv"
           else
-            echo "No Apex classes found to scan."
+            echo "No apex test classes found excluding fflib_."
+            exit 1
+          fi
           fi
 
       # Delete temporary test file that Codecov is unable to parse
