@@ -8,6 +8,11 @@ public with sharing class CaseService {
    * @param closeReason The reason to set for closing the cases.
    */
   public static void closeCases(Set<Id> caseIds, String closeReason) {
+    // Create a Unit Of Work
+    fflib_SObjectUnitOfWork uow = new fflib_SObjectUnitOfWork(
+      new List<Schema.SObjectType>{ Case.SObjectType }
+    );
+
     List<Case> casesToClose = [
       SELECT Id, reason
       FROM Case
@@ -17,7 +22,8 @@ public with sharing class CaseService {
     for (Case caseToClose : casesToClose) {
       caseToClose.Status = 'Closed';
       caseToClose.Reason = closeReason;
+      uow.registerDirty(caseToClose);
     }
-    update as USER casesToClose;
+    uow.commitWork();
   }
 }
