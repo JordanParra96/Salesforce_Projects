@@ -112,6 +112,7 @@ jobs:
           else
             echo "No test classes found excluding fflib_."
           fi
+          fi
 
       # Delete temporary test file that Codecov is unable to parse
       - name: "Delete coverage file (temporary step)"
