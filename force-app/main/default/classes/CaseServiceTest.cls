@@ -9,8 +9,14 @@ private class CaseServiceTest {
    */
   @IsTest
   static void testCloseCases() {
+    // Create a Unit Of Work
+    fflib_SObjectUnitOfWork uow = new fflib_SObjectUnitOfWork(
+      new List<Schema.SObjectType>{ Case.SObjectType }
+    );
+
     Case testCase = new Case(Status = 'New');
-    insert testCase;
+    uow.registerNew(testCase);
+    uow.commitWork();
 
     Test.startTest();
     CaseService.closeCases(new Set<Id>{ testCase.Id }, 'Resolved');

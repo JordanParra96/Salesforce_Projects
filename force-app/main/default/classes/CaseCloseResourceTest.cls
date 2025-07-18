@@ -9,9 +9,14 @@ private class CaseCloseResourceTest {
    */
   @IsTest
   static void testCloseCase() {
+    // Create unit of work
+    fflib_SObjectUnitOfWork uow = new fflib_SObjectUnitOfWork(
+      new List<Schema.SObjectType>{ Case.SObjectType }
+    );
     // Create a case
     Case c = new Case();
-    insert c;
+    uow.registerNew(c);
+    uow.commitWork();
     // Create a rest context
     RestRequest req = new RestRequest();
     RestContext.request = req;

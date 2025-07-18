@@ -8,6 +8,10 @@ private class HouseServiceTest {
    */
   @testSetup
   static void setup() {
+    // Create unit of work
+    fflib_SObjectUnitOfWork uow = new fflib_SObjectUnitOfWork(
+      new List<Schema.SObjectType>{ House__c.SObjectType, User.SObjectType }
+    );
     Profile p = [SELECT Id FROM Profile WHERE Name = 'Standard User' LIMIT 1];
     User usr = new User(
       LastName = 'TEST',
@@ -21,7 +25,8 @@ private class HouseServiceTest {
       EmailEncodingKey = 'UTF-8',
       LocaleSidKey = 'en_US'
     );
-    insert usr;
+    // Register user for creation
+    uow.registerNew(usr);
 
     List<House__c> houses = new List<House__c>{
       new House__c(
@@ -46,7 +51,12 @@ private class HouseServiceTest {
         Zip__c = '92101'
       )
     };
-    insert houses;
+    // Register houses for creation
+    for (House__c h : houses) {
+      uow.registerNew(h);
+    }
+    // Insert user and houses
+    uow.commitWork();
   }
   /**
    * @description Tests the getRecords method of HouseService.

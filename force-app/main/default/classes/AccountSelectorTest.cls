@@ -8,12 +8,21 @@ private class AccountSelectorTest {
    */
   @isTest
   static void selectById() {
+    // Create a Unit Of Work
+    fflib_SObjectUnitOfWork uow = new fflib_SObjectUnitOfWork(
+      new List<Schema.SObjectType>{ Account.SObjectType }
+    );
+
     List<Account> accList = new List<Account>{
       new Account(Name = 'Test Account 1'),
       new Account(Name = 'Test Account 2'),
       new Account(Name = 'Test Account 3')
     };
-    insert accList;
+    for (Account acc : accList) {
+      uow.registerNew(acc);
+    }
+
+    uow.commitWork();
 
     list<Account> accounts = new AccountsSelector()
       .selectById(new Set<Id>{ accList[0].Id, accList[1].Id, accList[2].Id });

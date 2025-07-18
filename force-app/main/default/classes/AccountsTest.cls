@@ -8,14 +8,22 @@ private class AccountsTest {
    */
   @isTest
   static void onApplyDefaults() {
+    // Create a Unit Of Work
+    fflib_SObjectUnitOfWork uow = new fflib_SObjectUnitOfWork(
+      new List<Schema.SObjectType>{ Account.SObjectType }
+    );
     List<Account> accList = new List<Account>{
       new Account(Name = 'Test 1', Description = 'Hello World'),
       new Account(Name = 'Test 2', Description = 'Domain classes rock!'),
       new Account(Name = 'Test 3', Description = ''),
       new Account(Name = 'Test 4', Description = null)
     };
+    // Register accounts for creation
+    for (Account acc : accList) {
+      uow.registerNew(acc);
+    }
     Test.startTest();
-    insert accList;
+    uow.commitWork();
     Test.stopTest();
     Account testAccount = [
       SELECT Id, Description
@@ -35,18 +43,32 @@ private class AccountsTest {
    */
   @isTest
   static void onBeforeUpdate() {
+    // Create a Unit Of Work
+    fflib_SObjectUnitOfWork uowInsert = new fflib_SObjectUnitOfWork(
+      new List<Schema.SObjectType>{ Account.SObjectType }
+    );
     List<Account> accList = new List<Account>{
       new Account(Name = 'Test 1', Description = 'Hello World'),
       new Account(Name = 'Test 2', Description = 'Domain classes rock!'),
       new Account(Name = 'Test 3', Description = ''),
       new Account(Name = 'Test 4', Description = null)
     };
-    insert accList;
+    // Insert accounts
+    for (Account acc : accList) {
+      uowInsert.registerNew(acc);
+    }
+
+    uowInsert.commitWork();
     Test.startTest();
+    //Create a new Unit Of Work for updates
+    fflib_SObjectUnitOfWork uowUpdate = new fflib_SObjectUnitOfWork(
+      new List<Schema.SObjectType>{ Account.SObjectType }
+    );
     for (Account acc : accList) {
       acc.Description += ' Updated';
+      uowUpdate.registerDirty(acc);
     }
-    update accList;
+    uowUpdate.commitWork();
     Test.stopTest();
     List<Account> updatedAccounts = [
       SELECT Id, AnnualRevenue
