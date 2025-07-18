@@ -25,15 +25,13 @@ private class AccountsTest {
     Test.startTest();
     uow.commitWork();
     Test.stopTest();
-    Account testAccount = [
-      SELECT Id, Description
-      FROM Account
-      WHERE Name = 'Test 2'
-      LIMIT 1
-    ];
+
+    List<Account> testAccounts = new AccountsSelector()
+      .selectByName(new Set<String>{ 'Test 2' }, 1);
+
     Assert.areEqual(
       'Domain classes rock!',
-      testAccount.Description,
+      testAccounts[0].Description,
       'Description should be set to "Domain classes rock!"'
     );
   }
@@ -70,11 +68,13 @@ private class AccountsTest {
     }
     uowUpdate.commitWork();
     Test.stopTest();
-    List<Account> updatedAccounts = [
-      SELECT Id, AnnualRevenue
-      FROM Account
-      WHERE Name IN ('Test 1', 'Test 2', 'Test 3', 'Test 4')
-    ];
+
+    List<Account> updatedAccounts = new AccountsSelector()
+      .selectByName(
+        new Set<String>{ 'Test 1', 'Test 2', 'Test 3', 'Test 4' },
+        10
+      );
+
     Assert.isTrue(
       updatedAccounts.size() == 4,
       'All accounts should be updated'
