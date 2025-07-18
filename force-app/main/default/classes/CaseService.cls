@@ -13,12 +13,8 @@ public with sharing class CaseService {
       new List<Schema.SObjectType>{ Case.SObjectType }
     );
 
-    List<Case> casesToClose = [
-      SELECT Id, reason
-      FROM Case
-      WHERE Id IN :caseIds
-      WITH USER_MODE
-    ];
+    List<Case> casesToClose = new CasesSelector().selectById(caseIds);
+
     for (Case caseToClose : casesToClose) {
       caseToClose.Status = 'Closed';
       caseToClose.Reason = closeReason;

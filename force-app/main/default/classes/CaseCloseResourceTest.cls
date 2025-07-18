@@ -24,7 +24,7 @@ private class CaseCloseResourceTest {
     // Call the service
     CaseCloseResource.closeCase('Resolved');
     // Verify the case is closed
-    c = [SELECT Id, IsClosed FROM Case WHERE Id = :c.Id];
-    System.assert(c.IsClosed);
+    List<Case> cases = new CasesSelector().selectById(new Set<Id>{ c.Id });
+    System.assert(cases[0].IsClosed);
   }
 }

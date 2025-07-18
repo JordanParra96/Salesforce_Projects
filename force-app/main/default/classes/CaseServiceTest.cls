@@ -22,15 +22,17 @@ private class CaseServiceTest {
     CaseService.closeCases(new Set<Id>{ testCase.Id }, 'Resolved');
     Test.stopTest();
 
-    testCase = [SELECT Status, Reason FROM Case WHERE Id = :testCase.Id];
+    List<Case> testCases = new CasesSelector()
+      .selectById(new Set<Id>{ testCase.Id });
+
     System.assertEquals(
       'Closed',
-      testCase.Status,
+      testCases[0].Status,
       'Case status should be Closed'
     );
     System.assertEquals(
       'Resolved',
-      testCase.Reason,
+      testCases[0].Reason,
       'Case reason should be Resolved'
     );
   }
