@@ -90,8 +90,9 @@ private class HouseServiceTest {
    */
   @isTest
   static void testGetRecordsThrownException() {
-    User testUser = [SELECT Id FROM User WHERE LastName = 'TEST' LIMIT 1];
-    System.runAs(testUser) {
+    List<User> testUsers = new UsersSelector()
+      .selectByLastname(new Set<String>{ 'TEST' }, 1);
+    System.runAs(testUsers[0]) {
       // Simulate a scenario where a QueryException is thrown
       Test.startTest();
       try {
