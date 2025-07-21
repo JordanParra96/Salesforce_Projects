@@ -1,0 +1,32 @@
+<template>
+  <div class="container">
+    <!-- Header -->
+    <div class="slds-p-around_x-small slds-border_bottom slds-theme_shade">
+      <div
+        class="slds-grid slds-grid_align-spread slds-grid_vertical-align-center"
+      >
+        <span class="slds-badge slds-badge_inverse">{notificationCount}</span>
+        <lightning-button-icon
+          onclick={handleClearClick}
+          icon-name="utility:delete"
+          title="Clear notifications"
+          alternative-text="Clear notifications"
+          variant="border-filled"
+        ></lightning-button-icon>
+      </div>
+    </div>
+    <!-- Notification list -->
+    <div class="slds-container_fluid slds-scrollable_y content">
+      <template for:each={notifications} for:item="notification">
+        <div key={notification.id} class="slds-p-around_small slds-border_top">
+          <div class="slds-grid slds-grid_align-spread slds-has-flexi-truncate">
+            <p>{notification.message}</p>
+            <p class="slds-text-color_weak slds-p-left_x-small">
+              {notification.time}
+            </p>
+          </div>
+        </div>
+      </template>
+    </div>
+  </div>
+</template>
