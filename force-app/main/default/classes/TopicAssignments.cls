@@ -3,6 +3,13 @@
  */
 public with sharing class TopicAssignments extends fflib_SObjectDomain {
   /**
+   * @description If test class is running topicInput = testTopic, else topicInput = BearAlert.
+   */
+  private static final String TOPIC_INPUT = Test.isRunningTest()
+    ? 'TestAlert'
+    : 'BearAlert';
+
+  /**
    * @description Constructor for TopicAssignments domain class.
    * @param sOjectList List of TopicAssignment SObjects.
    */
@@ -39,16 +46,15 @@ public with sharing class TopicAssignments extends fflib_SObjectDomain {
 
     // Load FeedItem bodies
     Map<Id, FeedItem> feedItems = new Map<Id, FeedItem>(
-      [SELECT Body FROM FeedItem WHERE Id IN :feedIds]
+      new FeedItemsSelector().selectById(feedIds)
     );
 
     // Create messages for each FeedItem that contains the BearAlert topic
     List<String> messages = new List<String>();
-    for (TopicAssignment ta : [
-      SELECT Id, EntityId, Topic.Name
-      FROM TopicAssignment
-      WHERE Id IN :(List<TopicAssignment>) Records AND Topic.Name = 'BearAlert'
-    ]) {
+    for (
+      TopicAssignment ta : new TopicAssignmentsSelector()
+        .selectByTopicName((List<TopicAssignment>) Records, TOPIC_INPUT, 50000)
+    ) {
       messages.add(
         feedItems.get(ta.EntityId).body.stripHtmlTags().abbreviate(255)
       );
