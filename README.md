@@ -17,6 +17,8 @@ this repository contains the metadata of all the projects made for trailhead, th
 
 - [Get Started with Salesforce Development](https://trailhead.salesforce.com/content/learn/projects/get-started-with-salesforce-development)
 
+- [Build an Instant Notification App](https://trailhead.salesforce.com/content/learn/projects/workshop-platform-events)
+
 ## Modules
 
 - [Apex Enterprise Patterns: Service Layer](https://trailhead.salesforce.com/content/learn/modules/apex_patterns_sl)
