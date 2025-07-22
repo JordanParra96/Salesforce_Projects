@@ -3,13 +3,6 @@
  */
 public with sharing class TopicAssignments extends fflib_SObjectDomain {
   /**
-   * @description If test class is running topicInput = testTopic, else topicInput = BearAlert.
-   */
-  private static final String TOPIC_INPUT = Test.isRunningTest()
-    ? 'TestAlert'
-    : 'BearAlert';
-
-  /**
    * @description Constructor for TopicAssignments domain class.
    * @param sOjectList List of TopicAssignment SObjects.
    */
@@ -53,7 +46,7 @@ public with sharing class TopicAssignments extends fflib_SObjectDomain {
     List<String> messages = new List<String>();
     for (
       TopicAssignment ta : new TopicAssignmentsSelector()
-        .selectByTopicName((List<TopicAssignment>) Records, TOPIC_INPUT, 50000)
+        .selectByTopicName((List<TopicAssignment>) Records, 'BearAlert', 50000)
     ) {
       messages.add(
         feedItems.get(ta.EntityId).body.stripHtmlTags().abbreviate(255)
@@ -70,17 +63,13 @@ public with sharing class TopicAssignments extends fflib_SObjectDomain {
 
     // Inspect publishing results
     for (Database.SaveResult result : results) {
-      if (!result.isSuccess()) {
-        for (Database.Error error : result.getErrors()) {
-          System.debug(
-            LoggingLevel.ERROR,
-            'Error returned: ' +
-              error.getStatusCode() +
-              ' - ' +
-              error.getMessage()
-          );
-        }
-      }
+      system.debug(
+        LoggingLevel.INFO,
+        'Notification published: ' +
+          result.isSuccess() +
+          ', ' +
+          result.getErrors()
+      );
     }
   }
 }

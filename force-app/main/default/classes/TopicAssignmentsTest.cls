@@ -28,7 +28,7 @@ private class TopicAssignmentsTest {
     );
     uow.registerNew(testFeedItem, FeedItem.ParentId, testAccount);
 
-    Topic testTopic = new Topic(Name = 'TestAlert');
+    Topic testTopic = new Topic(Name = 'BearAlert1');
     uow.registerNew(testTopic);
 
     TopicAssignment testTopicAssignment = new TopicAssignment();

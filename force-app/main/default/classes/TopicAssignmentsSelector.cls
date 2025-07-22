@@ -56,7 +56,9 @@ public with sharing class TopicAssignmentsSelector extends fflib_SObjectSelector
     return (List<TopicAssignment>) Database.query(
       newQueryFactory()
         .selectField('Topic.Name')
-        .setCondition('Id IN :topicAssignments AND Topic.Name = :topicName')
+        .setCondition(
+          'Id IN :topicAssignments AND Topic.Name LIKE \'%' + topicName + '%\''
+        )
         .setLimit(recordLimit)
         .toSOQL()
     );
