@@ -11,7 +11,13 @@ private class DataGenerationTests {
   static void dataCreation() {
     // GIVEN
     Account a = TestFactory.getAccount('Muddy Waters Inc.', true);
-    Contact c = TestFactory.getContact(a.id, 'Muddy', 'Waters', true);
+    Map<String, Object> contactParams = new Map<String, Object>{
+      'accountId' => a.Id,
+      'fname' => 'Muddy',
+      'lname' => 'Waters',
+      'doInsert' => true
+    };
+    Contact c = TestFactory.getContact(contactParams);
     Opportunity opp = new Opportunity();
     opp.name = 'Long lost record';
     opp.accountId = a.id;

@@ -21,21 +21,22 @@ public class TestFactory {
 
   /**
    * @description Creates a Contact associated with the specified Account.
-   * @param accountId The Id of the Account to associate with the Contact.
-   * @param fname The first name of the Contact.
-   * @param lname The last name of the Contact.
-   * @param doInsert Whether to insert the Contact into the database.
+   * @param params A map containing parameters for the Contact:
+   *               - accountId: The Id of the Account to associate with.
+   *               - fname: The first name of the Contact.
+   *               - lname: The last name of the Contact.
+   * *             - doInsert: Whether to insert the Contact into the database.
    * @return The created Contact.
    */
-  public static Contact getContact(
-    Id accountId,
-    String fname,
-    String lname,
-    Boolean doInsert
-  ) {
+  public static Contact getContact(Map<String, Object> params) {
+    Id accountId = (Id) params.get('accountId');
+    String firstName = (String) params.get('fname');
+    String lastName = (String) params.get('lname');
+    Boolean doInsert = (Boolean) params.get('doInsert');
+
     Contact c = new Contact(
-      firstName = fname,
-      lastName = lname,
+      firstName = firstName,
+      lastName = lastName,
       accountId = accountId
     );
     if (doInsert) {
@@ -53,7 +54,13 @@ public class TestFactory {
     List<Contact> contacts = new List<Contact>();
     for (Integer i = 0; i < numContacts; i++) {
       String contactName = 'contact' + i;
-      contacts.add(getContact(a.id, contactName, contactName, false));
+      Map<String, Object> contactParams = new Map<String, Object>{
+        'accountId' => a.Id,
+        'fname' => contactName,
+        'lname' => contactName,
+        'doInsert' => false
+      };
+      contacts.add(getContact(contactParams));
     }
     insert contacts;
   }
