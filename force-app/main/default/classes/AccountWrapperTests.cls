@@ -14,6 +14,10 @@ private class AccountWrapperTests {
     accounts.add(acme);
     Account testAccount = new Account(Name = 'Test Account');
     accounts.add(testAccount);
+    Account moduleAcc = new Account(Name = 'Module Account');
+    accounts.add(moduleAcc);
+    Account negativeAccount = new Account(Name = 'Negative Account');
+    accounts.add(negativeAccount);
     insert accounts;
     List<Opportunity> opps = TestFactory.generateOppsForAccount(
       accounts[0].id,
@@ -27,6 +31,18 @@ private class AccountWrapperTests {
       5
     );
     insert highPriorityopps;
+    List<Opportunity> moduleOpps = TestFactory.generateOppsForAccount(
+      accounts[2].id,
+      9500.00,
+      5
+    );
+    insert moduleOpps;
+    List<Opportunity> negativeOpps = TestFactory.generateOppsForAccount(
+      accounts[3].id,
+      -10.00,
+      5
+    );
+    insert negativeOpps;
   }
 
   /**
@@ -43,6 +59,53 @@ private class AccountWrapperTests {
       1000.00,
       acctWrapper.getRoundedAvgPriceOfOpps(),
       'Expected to get 1000.00'
+    );
+    Test.stopTest();
+  }
+
+  /**
+   * @description Tests the case where there are no won Opportunities.
+   */
+  @IsTest
+  static void testNoWonOpportunities() {
+    // WHEN
+    Account acct = [
+      SELECT Id
+      FROM Account
+      WHERE Name = 'Negative Account'
+      LIMIT 1
+    ];
+    AccountWrapper acctWrapper = new AccountWrapper(acct);
+    // THEN
+    Test.startTest();
+    try {
+      acctWrapper.getRoundedAvgPriceOfOpps();
+      System.assert(false, 'Expected an AWException to be thrown');
+    } catch (AccountWrapper.AWException e) {
+      System.assertEquals('No won Opportunities', e.getMessage());
+    }
+    Test.stopTest();
+  }
+
+  /**
+   * @description Tests the case where the average price of Opportunities is less than 1000.
+   */
+  @IsTest
+  static void testModulusGreaterThan500() {
+    // WHEN
+    Account acct = [
+      SELECT Id
+      FROM Account
+      WHERE Name = 'Module Account'
+      LIMIT 1
+    ];
+    AccountWrapper acctWrapper = new AccountWrapper(acct);
+    // THEN
+    Test.startTest();
+    Assert.areEqual(
+      10000.00,
+      acctWrapper.getRoundedAvgPriceOfOpps(),
+      'Expected to get 10000.00'
     );
     Test.stopTest();
   }
