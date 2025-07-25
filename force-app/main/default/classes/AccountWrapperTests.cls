@@ -140,4 +140,36 @@ private class AccountWrapperTests {
     );
     Test.stopTest();
   }
+
+  /**
+   * @description Tests the case where the average price of Opportunities is zero.
+   */
+  @IsTest
+  static void testNegativeAccountWrapperAvgPriceOfOpps() {
+    // GIVEN
+    Account acct = [SELECT Id FROM Account LIMIT 1];
+    List<Opportunity> opps = [
+      SELECT Amount
+      FROM Opportunity
+      WHERE accountId = :acct.Id
+    ];
+    for (Opportunity o : opps) {
+      o.Amount = 0;
+    }
+    update opps;
+    AccountWrapper acctWrapper = new AccountWrapper(acct);
+    // WHEN
+    try {
+      Test.startTest();
+      acctWrapper.getRoundedAvgPriceOfOpps();
+      Test.stopTest();
+      Assert.fail('An exception should have been thrown');
+    } catch (AccountWrapper.AWException e) {
+      // THEN
+      Assert.isTrue(
+        e.getMessage().equalsIgnoreCase('no won opportunities'),
+        'Exception message does not match: ' + e.getMessage()
+      );
+    }
+  }
 }
