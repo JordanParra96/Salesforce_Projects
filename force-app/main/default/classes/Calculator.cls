@@ -12,7 +12,9 @@ public class Calculator {
 
   public static Integer multiply(Integer a, Integer b) {
     if (b == 0 || a == 0) {
-      throw new CalculatorException('It doesn\'t make sense to multiply by zero');
+      throw new CalculatorException(
+        'It doesn\'t make sense to multiply by zero'
+      );
     }
     return a * b;
   }
@@ -23,7 +25,9 @@ public class Calculator {
     }
     Decimal returnValue = numerator / denominator;
     if (returnValue < 0) {
-      throw new CalculatorException('Division returned a negative value.' + returnValue);
+      throw new CalculatorException(
+        'Division returned a negative value.' + returnValue
+      );
     }
     return returnValue;
   }
