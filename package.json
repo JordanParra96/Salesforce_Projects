@@ -24,6 +24,7 @@
     "@salesforce/eslint-config-lwc": "^3.7.2",
     "@salesforce/eslint-plugin-aura": "^2.1.0",
     "@salesforce/eslint-plugin-lightning": "^1.0.0",
+    "@salesforce/mcp": "^0.19.1",
     "@salesforce/sfdx-lwc-jest": "^7.0.1",
     "eslint": "^8.57.0",
     "eslint-plugin-import": "^2.31.0",
