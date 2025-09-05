@@ -1,4 +1,4 @@
-import { createElement } from "@lwc/engine-dom";
+import { createElement } from "lwc";
 import NotificationConsole from "c/notificationConsole";
 import { subscribe, unsubscribe } from "lightning/empApi";
 
