@@ -1,4 +1,4 @@
-import { createElement } from "@lwc/engine-dom";
+import { createElement } from "lwc";
 import HousingMap from "c/housingMap";
 import getHouses from "@salesforce/apex/HouseService.getRecords";
 import { registerApexTestWireAdapter } from "@salesforce/sfdx-lwc-jest";
