@@ -45,4 +45,23 @@ public with sharing class AccountsSelector extends fflib_SObjectSelector {
         .toSOQL()
     );
   }
+
+  /**
+   * @description Selects all Account records without any limit.
+   * @return List<Account> - List of all Account records.
+   */
+  public List<Account> selectAll() {
+    return (List<Account>) Database.query(newQueryFactory().toSOQL());
+  }
+
+  /**
+   * @description Selects all Account records with a limit on the number of records returned.
+   * @param recordLimit - Maximum number of records to return.
+   * @return List<Account> - List of Account records.
+   */
+  public List<Account> selectAll(Integer recordLimit) {
+    return (List<Account>) Database.query(
+      newQueryFactory().setLimit(recordLimit).toSOQL()
+    );
+  }
 }
