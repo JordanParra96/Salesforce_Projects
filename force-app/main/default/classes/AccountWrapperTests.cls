@@ -51,7 +51,8 @@ private class AccountWrapperTests {
   @IsTest
   static void testPositiveRoundedAveragePrice() {
     // WHEN
-    Account acct = [SELECT Id FROM Account WHERE Name = 'ACME' LIMIT 1];
+    Account acct = new AccountsSelector()
+      .selectByName(new Set<String>{ 'ACME' }, 1)[0];
     AccountWrapper acctWrapper = new AccountWrapper(acct);
     // THEN
     Test.startTest();
@@ -69,12 +70,8 @@ private class AccountWrapperTests {
   @IsTest
   static void testNoWonOpportunities() {
     // WHEN
-    Account acct = [
-      SELECT Id
-      FROM Account
-      WHERE Name = 'Negative Account'
-      LIMIT 1
-    ];
+    Account acct = new AccountsSelector()
+      .selectByName(new Set<String>{ 'Negative Account' }, 1)[0];
     AccountWrapper acctWrapper = new AccountWrapper(acct);
     // THEN
     Test.startTest();
@@ -93,12 +90,8 @@ private class AccountWrapperTests {
   @IsTest
   static void testModulusGreaterThan500() {
     // WHEN
-    Account acct = [
-      SELECT Id
-      FROM Account
-      WHERE Name = 'Module Account'
-      LIMIT 1
-    ];
+    Account acct = new AccountsSelector()
+      .selectByName(new Set<String>{ 'Module Account' }, 1)[0];
     AccountWrapper acctWrapper = new AccountWrapper(acct);
     // THEN
     Test.startTest();
@@ -116,7 +109,8 @@ private class AccountWrapperTests {
   @IsTest
   static void testIsHighPriority() {
     // WHEN
-    Account acct = [SELECT Id FROM Account WHERE Name = 'Test Account' LIMIT 1];
+    Account acct = new AccountsSelector()
+      .selectByName(new Set<String>{ 'Test Account' }, 1)[0];
     AccountWrapper acctWrapper = new AccountWrapper(acct);
     // THEN
     Test.startTest();
@@ -130,7 +124,8 @@ private class AccountWrapperTests {
   @IsTest
   static void testNegativeIsHighPriority() {
     // WHEN
-    Account acct = [SELECT Id FROM Account WHERE Name = 'ACME' LIMIT 1];
+    Account acct = new AccountsSelector()
+      .selectByName(new Set<String>{ 'ACME' }, 1)[0];
     AccountWrapper acctWrapper = new AccountWrapper(acct);
     // THEN
     Test.startTest();
@@ -147,7 +142,7 @@ private class AccountWrapperTests {
   @IsTest
   static void testNegativeAccountWrapperAvgPriceOfOpps() {
     // GIVEN
-    Account acct = [SELECT Id FROM Account LIMIT 1];
+    Account acct = new AccountsSelector().selectAll(1)[0];
     List<Opportunity> opps = [
       SELECT Amount
       FROM Opportunity

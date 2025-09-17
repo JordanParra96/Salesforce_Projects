@@ -17,7 +17,7 @@ private class CSVTests {
   @IsTest
   static void testLoadAccountsFromStaticResource() {
     // WHEN
-    List<Account> accts = [SELECT ID FROM Account];
+    List<Account> accts = new AccountsSelector().selectAll();
     // THEN
     Assert.isTrue(accts.size() == 3, 'Expected 3 accounts');
   }
