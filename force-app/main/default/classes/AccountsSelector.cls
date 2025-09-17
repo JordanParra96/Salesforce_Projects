@@ -51,7 +51,7 @@ public with sharing class AccountsSelector extends fflib_SObjectSelector {
    * @return List<Account> - List of all Account records.
    */
   public List<Account> selectAll() {
-    return (List<Account>) Database.query(newQueryFactory().toSOQL());
+    return this.selectAll(50000);
   }
 
   /**

@@ -37,7 +37,7 @@ private class DataGenerationTests {
     insert a;
     // WHEN
     Test.startTest();
-    accts = [SELECT Id FROM Account];
+    accts = new AccountsSelector().selectAll();
     Test.stopTest();
     // THEN
     Assert.isTrue(
@@ -57,7 +57,7 @@ private class DataGenerationTests {
     TestFactory.generateAccountWithContacts(5);
     // WHEN
     Test.startTest();
-    accts = [SELECT Id FROM Account];
+    accts = new AccountsSelector().selectAll();
     contacts = [SELECT Id FROM Contact];
     Test.stopTest();
     // THEN

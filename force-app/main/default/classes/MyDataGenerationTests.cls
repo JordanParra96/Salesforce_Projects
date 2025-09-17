@@ -20,7 +20,7 @@ private class MyDataGenerationTests {
   @IsTest
   static void testLoadOtherAccountsFromStaticResource() {
     // WHEN
-    List<Account> accts = [SELECT ID FROM Account];
+    List<Account> accts = new AccountsSelector().selectAll();
     // THEN
     Assert.isTrue(accts.size() == 15, 'Expected 15 accounts');
   }

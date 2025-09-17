@@ -32,7 +32,7 @@ private class UnitOfWorkTest {
     }
     // Commit the Unit Of Work
     uow.commitWork();
-    System.assertEquals(100, [SELECT Id FROM Account].size());
+    System.assertEquals(100, new AccountsSelector().selectAll().size());
     System.assertEquals(500, [SELECT Id FROM Contact].size());
     System.assertEquals(500, [SELECT Id FROM Note].size());
   }
