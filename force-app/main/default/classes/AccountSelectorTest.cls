@@ -56,4 +56,64 @@ private class AccountSelectorTest {
 
     System.assertEquals(2, accounts.size(), 'Should select 2 accounts by name');
   }
+
+  /**
+   * @description Test method for selecting all Accounts.
+   */
+  @isTest
+  static void selectAll() {
+    // Create a Unit Of Work
+    fflib_SObjectUnitOfWork uow = new fflib_SObjectUnitOfWork(
+      new List<Schema.SObjectType>{ Account.SObjectType }
+    );
+
+    List<Account> accList = new List<Account>{
+      new Account(Name = 'Test Account X'),
+      new Account(Name = 'Test Account Y'),
+      new Account(Name = 'Test Account Z')
+    };
+    for (Account acc : accList) {
+      uow.registerNew(acc);
+    }
+
+    uow.commitWork();
+
+    List<Account> accounts = new AccountsSelector().selectAll();
+
+    System.assert(
+      accounts.size() >= 3,
+      'Should select at least 3 accounts in total'
+    );
+  }
+
+  /**
+   * @description Test method for selecting all Accounts with a limit.
+   */
+  @isTest
+  static void selectAllWithLimit() {
+    // Create a Unit Of Work
+    fflib_SObjectUnitOfWork uow = new fflib_SObjectUnitOfWork(
+      new List<Schema.SObjectType>{ Account.SObjectType }
+    );
+
+    List<Account> accList = new List<Account>{
+      new Account(Name = 'Test Account 1'),
+      new Account(Name = 'Test Account 2'),
+      new Account(Name = 'Test Account 3'),
+      new Account(Name = 'Test Account 4'),
+      new Account(Name = 'Test Account 5')
+    };
+    for (Account acc : accList) {
+      uow.registerNew(acc);
+    }
+
+    uow.commitWork();
+
+    list<Account> accounts = new AccountsSelector().selectAll(3);
+    System.assertEquals(
+      3,
+      accounts.size(),
+      'Should select 3 accounts with limit'
+    );
+  }
 }
