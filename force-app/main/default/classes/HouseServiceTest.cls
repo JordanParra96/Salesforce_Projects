@@ -12,7 +12,8 @@ private class HouseServiceTest {
     fflib_SObjectUnitOfWork uow = new fflib_SObjectUnitOfWork(
       new List<Schema.SObjectType>{ House__c.SObjectType, User.SObjectType }
     );
-    Profile p = [SELECT Id FROM Profile WHERE Name = 'Standard User' LIMIT 1];
+    Profile p = new ProfileSelector()
+      .selectByName(new Set<String>{ 'Standard User' }, 1)[0];
     User usr = new User(
       LastName = 'TEST',
       FirstName = 'Fail',
