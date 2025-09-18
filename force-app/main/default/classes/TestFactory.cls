@@ -102,8 +102,9 @@ public class TestFactory {
     );
     insert userRole;
     User u = new User(
-      ProfileId = [SELECT Id FROM Profile WHERE Name = :profileName]
-      .Id,
+      ProfileId = new ProfileSelector()
+          .selectByName(new Set<String>{ profileName }, 1)[0]
+        .Id,
       LastName = 'last',
       Email = 'Cpt.Awesome@awesomesauce.com',
       Username = 'Cpt.Awesome.' +
