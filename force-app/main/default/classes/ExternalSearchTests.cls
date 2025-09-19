@@ -9,12 +9,12 @@ private class ExternalSearchTests {
   @IsTest
   static void testPositiveMocking() {
     // GIVEN
-    HTTPMockFactory mock = new HTTPMockFactory(
-      200,
-      'OK',
-      'I found it!',
-      new Map<String, String>()
-    );
+    HTTPMockFactory.HTTPMockParams params = new HTTPMockFactory.HTTPMockParams();
+    params.code = 200;
+    params.status = 'OK';
+    params.body = 'I found it!';
+    params.responseHeaders = new Map<String, String>();
+    HTTPMockFactory mock = new HTTPMockFactory(params);
     Test.setMock(HttpCalloutMock.class, mock);
     // WHEN
     Test.startTest();
@@ -30,12 +30,12 @@ private class ExternalSearchTests {
   @IsTest
   static void testNegativeMocking() {
     // GIVEN
-    HTTPMockFactory mock = new HTTPMockFactory(
-      500,
-      'Internal Server Error',
-      'Something went wrong',
-      new Map<String, String>()
-    );
+    HTTPMockFactory.HTTPMockParams params = new HTTPMockFactory.HTTPMockParams();
+    params.code = 500;
+    params.status = 'Internal Server Error';
+    params.body = 'Something went wrong';
+    params.responseHeaders = new Map<String, String>();
+    HTTPMockFactory mock = new HTTPMockFactory(params);
     Test.setMock(HttpCalloutMock.class, mock);
     // WHEN
     Test.startTest();

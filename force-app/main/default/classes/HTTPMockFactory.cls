@@ -9,22 +9,14 @@ public class HTTPMockFactory implements HttpCalloutMock {
   protected Map<String, String> responseHeaders;
 
   /**
-   * @description Constructor for HTTPMockFactory.
-   * @param code - The HTTP status code to return.
-   * @param status - The HTTP status message to return.
-   * @param body - The HTTP response body to return.
-   * @param responseHeaders - The HTTP response headers to return.
+   * @description Constructor for HTTPMockFactory using parameter object.
+   * @param params - The parameter object containing HTTP response details.
    */
-  public HTTPMockFactory(
-    Integer code,
-    String status,
-    String body,
-    Map<String, String> responseHeaders
-  ) {
-    this.code = code;
-    this.status = status;
-    this.body = body;
-    this.responseHeaders = responseHeaders;
+  public HTTPMockFactory(HTTPMockParams params) {
+    this.code = params.code;
+    this.status = params.status;
+    this.body = params.body;
+    this.responseHeaders = params.responseHeaders;
   }
 
   /**
@@ -41,5 +33,15 @@ public class HTTPMockFactory implements HttpCalloutMock {
     res.setStatusCode(this.code);
     res.setStatus(this.status);
     return res;
+  }
+
+  /**
+   * @description Parameter object for HTTPMockFactory constructor.
+   */
+  public class HTTPMockParams {
+    public Integer code;
+    public String status;
+    public String body;
+    public Map<String, String> responseHeaders;
   }
 }
