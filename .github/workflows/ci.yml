@@ -110,7 +110,7 @@ jobs:
       - name: "Run Apex tests"
         run: |
           if ls ./force-app/main/default/classes/*.cls 1> /dev/null 2>&1; then
-            sf project deploy start --test-level RunLocalTests --dry-run -w 20
+            sf project deploy start --test-level RunLocalTests --results-dir ./tests/apex --dry-run -w 20
           else
             echo "No Apex classes found to scan."
           fi
