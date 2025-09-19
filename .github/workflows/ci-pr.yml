@@ -115,7 +115,7 @@ jobs:
       - name: "Delete coverage file (temporary step)"
         run: |
           if ls ./force-app/main/default/classes/*.cls 1> /dev/null 2>&1; then
-            rm ./tests/apex/coverage/
+            rm -r ./tests/apex/coverage/
           else
             echo "No Apex classes found to delete coverage file."
           fi
