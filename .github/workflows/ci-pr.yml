@@ -106,7 +106,7 @@ jobs:
       - name: "Run Apex tests"
         run: |
           if ls ./force-app/main/default/classes/*.cls 1> /dev/null 2>&1; then
-            sf project deploy start --test-level RunLocalTests --coverage-formatters json --results-dir ./tests/apex --dry-run -w 20 
+            sf apex test run -c -r human -d ./tests/apex -w 20 
           else
             echo "No Apex classes found to scan."
           fi
@@ -115,7 +115,7 @@ jobs:
       - name: "Delete coverage file (temporary step)"
         run: |
           if ls ./force-app/main/default/classes/*.cls 1> /dev/null 2>&1; then
-            rm -r ./tests/apex/coverage/
+            rm ./tests/apex/test-result-707*-codecoverage.json
           else
             echo "No Apex classes found to delete coverage file."
           fi
