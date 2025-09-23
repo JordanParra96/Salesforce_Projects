@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<ExternalClientApplication xmlns="http://soap.sforce.com/2006/04/metadata">
+    <contactEmail>eca_metadata@example.com</contactEmail>
+    <description>External client app Metadata API creation</description>
+    <distributionState>Local</distributionState>
+    <isProtected>false</isProtected>
+    <label>ecaViaMetadata</label>
+    <orgScopedExternalApp>00Dbm00000P9Z9p:ecaViaMetadata</orgScopedExternalApp>
+</ExternalClientApplication>
