@@ -131,7 +131,7 @@ jobs:
       - name: "Update PR description with commit list"
         if: github.event_name == 'pull_request'
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GH_PAT }}
         run: |
           sudo apt-get update
           sudo apt-get install -y gh
