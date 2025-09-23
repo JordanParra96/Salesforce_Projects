@@ -126,3 +126,16 @@ jobs:
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           flags: Apex
+
+      # Update PR description with commit list
+      - name: "Update PR description with commit list"
+        if: github.event_name == 'pull_request'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gh
+          PR_NUMBER="${{ github.event.pull_request.number }}"
+          COMMITS=$(gh pr view "$PR_NUMBER" --json commits -q '.commits[].commit | "- \(.oid[0:7]) \(.messageHeadline)"')
+          NEW_DESC="Commits in the PR:\n$COMMITS"
+          gh pr edit "$PR_NUMBER" --body "$NEW_DESC"
