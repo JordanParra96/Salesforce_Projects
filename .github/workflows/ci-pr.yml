@@ -107,8 +107,9 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y gh
           PR_NUMBER="${{ github.event.pull_request.number }}"
-          COMMITS=$(gh pr view "$PR_NUMBER" --json commits -q '.commits[] | "- \(.oid[0:7]) \(.messageHeadline)"')
-          NEW_DESC="Commits in the PR:\n$COMMITS"
+          COMMITS=$(gh pr view "$PR_NUMBER" --json commits -q '.commits[] | "- 📝 \(.oid[0:7]) \(.messageHeadline)"')
+          NEW_DESC="Commits in the PR:
+          $COMMITS"
           gh pr edit "$PR_NUMBER" --body "$NEW_DESC"
 
       # Authenticate dev environment
