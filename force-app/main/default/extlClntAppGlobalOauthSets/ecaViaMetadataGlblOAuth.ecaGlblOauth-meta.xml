@@ -1,7 +1,8 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <ExtlClntAppGlobalOauthSettings xmlns="http://soap.sforce.com/2006/04/metadata">
     <callbackUrl>https://openidconnect.herokuapp.com/callback</callbackUrl>
-    <consumerKey>3MVG91oqviqJKoEFpd7Lbbekk8lMp.gu_ZuYP.wUT.HtqDUZvfPbbl852HrembJ3SbtYaE_IXcXrt8at9jI8y</consumerKey>
+    <consumerKey
+  >3MVG91oqviqJKoEFpd7Lbbekk8lMp.gu_ZuYP.wUT.HtqDUZvfPbbl852HrembJ3SbtYaE_IXcXrt8at9jI8y</consumerKey>
     <externalClientApplication>ecaViaMetadata</externalClientApplication>
     <isClientCredentialsFlowEnabled>false</isClientCredentialsFlowEnabled>
     <isCodeCredFlowEnabled>false</isCodeCredFlowEnabled>
