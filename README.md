@@ -19,6 +19,8 @@ this repository contains the metadata of all the projects made for trailhead, th
 
 - [Build an Instant Notification App](https://trailhead.salesforce.com/content/learn/projects/workshop-platform-events)
 
+- [Create an External Client App Using Metadata API](https://trailhead.salesforce.com/content/learn/projects/create-an-external-client-app-using-metadata-api)
+
 ## Modules
 
 - [Apex Enterprise Patterns: Service Layer](https://trailhead.salesforce.com/content/learn/modules/apex_patterns_sl)
