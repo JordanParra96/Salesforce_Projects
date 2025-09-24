@@ -128,18 +128,27 @@ jobs:
             # Create temporary file for command output
             TEMP_OUTPUT=$(mktemp)
             
-            # Execute the command and capture both stdout and stderr
-            if sf apex test run -c -r json --target-org defaultOrg > "$TEMP_OUTPUT" 2>&1; then
-              # Try to extract JSON from the output (skip any warning lines)
-              TEST_RUN_RESULT=$(grep -E '^\s*\{.*\}\s*$' "$TEMP_OUTPUT" | tail -1)
+            # Execute the command without -c (code coverage) first to avoid conflicts
+            echo "🎯 Starting test execution..."
+            if sf apex test run -r json --target-org defaultOrg > "$TEMP_OUTPUT" 2>&1; then
+              # Check if we got JSON response
+              TEST_RUN_RESULT=$(cat "$TEMP_OUTPUT")
               
-              if [ -n "$TEST_RUN_RESULT" ]; then
-                echo "📋 Command output received, parsing JSON..."
+              # Try to parse JSON
+              if echo "$TEST_RUN_RESULT" | jq empty 2>/dev/null; then
+                echo "📋 Valid JSON received, parsing test run ID..."
                 TEST_RUN_ID=$(echo "$TEST_RUN_RESULT" | jq -r '.result.testRunId // null' 2>/dev/null)
               else
-                echo "⚠️ No valid JSON found in output. Full output:"
-                cat "$TEMP_OUTPUT"
-                TEST_RUN_ID="null"
+                # If no JSON, try to extract test ID from text output
+                echo "📋 Text output received, trying to extract test ID..."
+                TEST_RUN_ID=$(echo "$TEST_RUN_RESULT" | grep -oE '707[a-zA-Z0-9]{12,15}' | head -1)
+                if [ -z "$TEST_RUN_ID" ]; then
+                  echo "⚠️ Could not extract test ID. Full output:"
+                  cat "$TEMP_OUTPUT"
+                  TEST_RUN_ID="null"
+                else
+                  echo "✅ Extracted test ID from text: $TEST_RUN_ID"
+                fi
               fi
             else
               echo "❌ Command failed. Output:"
@@ -224,8 +233,36 @@ jobs:
               fi
             else
               echo "❌ Error: Could not get test run ID from command output"
-              echo "🔄 Trying traditional method as fallback..."
-              sf apex test run -c -r human -d ./tests/apex -w 20 --target-org defaultOrg
+              echo "🔄 Trying synchronous method as alternative..."
+              
+              # Use synchronous method with timeout and progress indicators
+              echo "⏳ Running tests synchronously with progress monitoring..."
+              
+              timeout 1200 bash -c '
+                sf apex test run -c -r human -d ./tests/apex --target-org defaultOrg --wait 20 &
+                PID=$!
+                
+                echo "🔄 Test execution started (PID: $PID)..."
+                
+                while kill -0 $PID 2>/dev/null; do
+                  echo "⏳ Tests in progress... $(date +%H:%M:%S)"
+                  sleep 30
+                done
+                
+                wait $PID
+                EXIT_CODE=$?
+                
+                if [ $EXIT_CODE -eq 0 ]; then
+                  echo "✅ All tests completed successfully!"
+                else
+                  echo "❌ Some tests failed or there was an error (exit code: $EXIT_CODE)"
+                fi
+                
+                exit $EXIT_CODE
+              ' || {
+                echo "💥 Tests failed or timed out"
+                exit 1
+              }
             fi
           else
             echo "ℹ️ No Apex classes found. Skipping tests."
