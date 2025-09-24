@@ -173,62 +173,75 @@ jobs:
                 
                 echo "⏳ Verifying progress... (Attempt $ATTEMPTS/$MAX_ATTEMPTS - $(date +%H:%M:%S))"
                 
-                # Get tests current status with better error handling
+                # Get tests current status using the correct command
                 RESULT_TEMP=$(mktemp)
-                if sf apex test report -i $TEST_RUN_ID -r json --target-org defaultOrg > "$RESULT_TEMP" 2>/dev/null; then
+                if sf apex get test --test-run-id "$TEST_RUN_ID" --target-org defaultOrg --json > "$RESULT_TEMP" 2>/dev/null; then
                   RESULT=$(cat "$RESULT_TEMP")
                   rm -f "$RESULT_TEMP"
-                else
-                  echo "⚠️ Could not get test status, retrying..."
-                  rm -f "$RESULT_TEMP"
-                  continue
-                fi
-                
-                # Validate JSON before parsing
-                if echo "$RESULT" | jq empty 2>/dev/null; then
-                  STATUS=$(echo "$RESULT" | jq -r '.result.summary.outcome // "Unknown"')
-                  TESTS_RAN=$(echo "$RESULT" | jq -r '.result.summary.testsRan // 0')
-                  TOTAL_TIME=$(echo "$RESULT" | jq -r '.result.summary.totalTime // "0ms"')
                   
-                  echo "📈 Status: $STATUS | Executed Tests: $TESTS_RAN | Total Time: $TOTAL_TIME"
+                  # Debug: show what we're getting
+                  echo "🔍 Response received, checking status..."
                   
-                  if [ "$STATUS" = "Completed" ] || [ "$STATUS" = "Failed" ]; then
-                    COMPLETED=true
-                    echo "🎯 Tests completed with status: $STATUS"
+                  # Validate JSON before parsing
+                  if echo "$RESULT" | jq empty 2>/dev/null; then
+                    STATUS=$(echo "$RESULT" | jq -r '.result.summary.outcome // .result.Outcome // "Unknown"' 2>/dev/null)
+                    TESTS_RAN=$(echo "$RESULT" | jq -r '.result.summary.testsRan // .result."Tests Ran" // 0' 2>/dev/null)
+                    PASS_RATE=$(echo "$RESULT" | jq -r '.result.summary.passRate // .result."Pass Rate" // "N/A"' 2>/dev/null)
                     
-                    # Get detailed results
-                    PASSING=$(echo "$RESULT" | jq -r '.result.summary.passing // 0')
-                    FAILING=$(echo "$RESULT" | jq -r '.result.summary.failing // 0')
-                    COVERAGE=$(echo "$RESULT" | jq -r '.result.summary.testRunCoverage // "N/A"')
+                    echo "📈 Status: $STATUS | Tests Ran: $TESTS_RAN | Pass Rate: $PASS_RATE"
                     
-                    echo "✅ Success Tests: $PASSING"
-                    echo "❌ Failed Tests: $FAILING"
-                    echo "📊 Code Coverage: $COVERAGE%"
-                    
-                    # Get details of failed tests if exist
-                    if [ "$FAILING" != "0" ]; then
+                    if [ "$STATUS" = "Passed" ] || [ "$STATUS" = "Failed" ] || [ "$STATUS" = "Completed" ]; then
+                      COMPLETED=true
+                      echo "🎯 Tests completed with status: $STATUS"
+                      
+                      # Get detailed results
+                      PASSING=$(echo "$RESULT" | jq -r '.result.summary.passing // (.result.summary.testsRan // 0)' 2>/dev/null)
+                      FAILING=$(echo "$RESULT" | jq -r '.result.summary.failing // 0' 2>/dev/null)
+                      FAIL_RATE=$(echo "$RESULT" | jq -r '.result."Fail Rate" // .result.summary.failRate // "0%"' 2>/dev/null)
+                      TOTAL_TIME=$(echo "$RESULT" | jq -r '.result."Test Total Time" // .result.summary.totalTime // "N/A"' 2>/dev/null)
+                      
+                      echo "✅ Total Tests: $TESTS_RAN"
+                      echo "✅ Pass Rate: $PASS_RATE"
+                      echo "❌ Fail Rate: $FAIL_RATE"
+                      echo "⏱️ Total Time: $TOTAL_TIME"
+                      
+                      # Generate final detailed report
                       echo ""
-                      echo "🔍 Details of failed Tests:"
-                      echo "$RESULT" | jq -r '.result.tests[]? | select(.Outcome == "Fail") | "❌ \(.FullName): \(.Message // "Without message")"' 2>/dev/null || echo "Could not parse failed test details"
+                      echo "📄 Generating final detailed report..."
+                      sf apex get test --test-run-id "$TEST_RUN_ID" --target-org defaultOrg
+                      
+                      # Also get code coverage if available
+                      echo ""
+                      echo "📊 Getting code coverage information..."
+                      sf apex get test --test-run-id "$TEST_RUN_ID" --target-org defaultOrg --code-coverage --json > coverage_temp.json 2>/dev/null || true
+                      if [ -f coverage_temp.json ] && [ -s coverage_temp.json ]; then
+                        COVERAGE=$(cat coverage_temp.json | jq -r '.result.summary.testRunCoverage // "N/A"' 2>/dev/null)
+                        echo "📊 Code Coverage: $COVERAGE%"
+                        rm -f coverage_temp.json
+                      fi
+                      
+                      # Fail the job if tests failed
+                      if [ "$STATUS" = "Failed" ]; then
+                        echo "💥 Job failed due to failed tests"
+                        exit 1
+                      fi
+                    else
+                      echo "🔄 Tests still running (Status: $STATUS)..."
                     fi
-                    
-                    echo ""
-                    echo "📄 Generating detailed report in human-readable format..."
-                    sf apex test report -i $TEST_RUN_ID -r human --target-org defaultOrg -d ./tests/apex
-                    
-                    # Fail the job if tests failed
-                    if [ "$STATUS" = "Failed" ]; then
-                      echo "💥 Job failed due to failed tests"
-                      exit 1
-                    fi
+                  else
+                    echo "⚠️ Invalid JSON response received. Raw response:"
+                    echo "$RESULT" | head -5
                   fi
                 else
-                  echo "⚠️ Invalid JSON response received, retrying in 30 seconds..."
+                  echo "⚠️ Could not get test status using 'sf apex get test', retrying..."
+                  rm -f "$RESULT_TEMP"
                 fi
               done
               
               if [ "$COMPLETED" = false ]; then
                 echo "⏰ Timeout: Tests did not complete within 20 minutes"
+                echo "🔍 Final status check..."
+                sf apex get test --test-run-id "$TEST_RUN_ID" --target-org defaultOrg || true
                 exit 1
               fi
             else
