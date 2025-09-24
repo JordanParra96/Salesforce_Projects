@@ -205,12 +205,7 @@ jobs:
                       echo "❌ Fail Rate: $FAIL_RATE"
                       echo "⏱️ Total Time: $TOTAL_TIME"
                       
-                      # Generate final detailed report with code coverage
-                      echo ""
-                      echo "📄 Generating final detailed report with code coverage..."
-                      sf apex get test --test-run-id "$TEST_RUN_ID" --target-org defaultOrg --code-coverage --result-format json --output-dir ./tests/apex
-                      
-                      # Also generate human-readable report
+                      # Generate human-readable report
                       echo ""
                       echo "📋 Generating human-readable report..."
                       sf apex get test --test-run-id "$TEST_RUN_ID" --target-org defaultOrg --code-coverage
