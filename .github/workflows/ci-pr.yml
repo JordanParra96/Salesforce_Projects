@@ -162,13 +162,13 @@ jobs:
             if [ "$TEST_RUN_ID" != "null" ] && [ -n "$TEST_RUN_ID" ]; then
               echo "✅ Apex Tests started with ID: $TEST_RUN_ID"
               
-              # Monitor progress every 10 seconds for more responsive feedback
+              # Monitor progress every 5 seconds for maximum responsiveness
               COMPLETED=false
               ATTEMPTS=0
-              MAX_ATTEMPTS=120  # 20 minutes max (120 * 10s)
+              MAX_ATTEMPTS=240  # 20 minutes max (240 * 5s)
               
               while [ "$COMPLETED" = false ] && [ $ATTEMPTS -lt $MAX_ATTEMPTS ]; do
-                sleep 10
+                sleep 5
                 ATTEMPTS=$((ATTEMPTS + 1))
                 
                 echo "⏳ Verifying progress... (Attempt $ATTEMPTS/$MAX_ATTEMPTS - $(date +%H:%M:%S))"
@@ -205,10 +205,15 @@ jobs:
                       echo "❌ Fail Rate: $FAIL_RATE"
                       echo "⏱️ Total Time: $TOTAL_TIME"
                       
-                      # Generate human-readable report
+                      # Generate final detailed report with code coverage (silently for files)
                       echo ""
-                      echo "📋 Generating human-readable report..."
-                      sf apex get test --test-run-id "$TEST_RUN_ID" --target-org defaultOrg --code-coverage
+                      echo "📄 Generating code coverage files..."
+                      sf apex get test --test-run-id "$TEST_RUN_ID" --target-org defaultOrg --code-coverage --result-format json --output-dir ./tests/apex > /dev/null 2>&1 || echo "⚠️ Could not generate JSON coverage files"
+                      
+                      # Show human-readable summary only
+                      echo ""
+                      echo "📋 Test Execution Summary:"
+                      sf apex get test --test-run-id "$TEST_RUN_ID" --target-org defaultOrg
                       
                       # Fail the job if tests failed
                       if [ "$STATUS" = "Failed" ]; then
@@ -252,7 +257,7 @@ jobs:
                 
                 while kill -0 $PID 2>/dev/null; do
                   echo "⏳ Tests in progress... $(date +%H:%M:%S)"
-                  sleep 10
+                  sleep 5
                 done
                 
                 wait $PID
