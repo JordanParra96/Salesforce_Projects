@@ -122,13 +122,16 @@ jobs:
           if ls ./force-app/main/default/classes/*.cls 1> /dev/null 2>&1; then
             echo "🚀 Starting Apex Tests execution..."
             
-            # Run tests in async mode and get job ID
+            # Run tests in async mode and get job ID with better error handling
             echo "📊 Execution tests with progress monitoring..."
-            TEST_RUN_RESULT=$(sf apex test run -c -r json --target-org defaultOrg 2>/dev/null || echo '{"result": {"testRunId": null}}')
-            TEST_RUN_ID=$(echo "$TEST_RUN_RESULT" | jq -r '.result.testRunId // null')
             
-            if [ "$TEST_RUN_ID" != "null" ] && [ -n "$TEST_RUN_ID" ]; then
-              echo "✅ Apex Tests started with ID: $TEST_RUN_ID"
+            # Create temporary file for command output
+            TEMP_OUTPUT=$(mktemp)
+            
+            # Execute the command and capture both stdout and stderr
+            if sf apex test run -c -r json --target-org defaultOrg > "$TEMP_OUTPUT" 2>&1; then
+              # Try to extract JSON from the output (skip any warning lines)
+              TEST_RUN_RESULT=$(grep -E '^\s*\{.*\}\s*
               
               # Monitor progress every 30 seconds
               COMPLETED=false
@@ -141,10 +144,19 @@ jobs:
                 
                 echo "⏳ Verifying progress... (Attempt $ATTEMPTS/$MAX_ATTEMPTS - $(date +%H:%M:%S))"
                 
-                # Get tests current status
-                RESULT=$(sf apex test report -i $TEST_RUN_ID -r json --target-org defaultOrg 2>/dev/null || echo '{}')
+                # Get tests current status with better error handling
+                RESULT_TEMP=$(mktemp)
+                if sf apex test report -i $TEST_RUN_ID -r json --target-org defaultOrg > "$RESULT_TEMP" 2>/dev/null; then
+                  RESULT=$(cat "$RESULT_TEMP")
+                  rm -f "$RESULT_TEMP"
+                else
+                  echo "⚠️ Could not get test status, retrying..."
+                  rm -f "$RESULT_TEMP"
+                  continue
+                fi
                 
-                if [ "$RESULT" != "{}" ]; then
+                # Validate JSON before parsing
+                if echo "$RESULT" | jq empty 2>/dev/null; then
                   STATUS=$(echo "$RESULT" | jq -r '.result.summary.outcome // "Unknown"')
                   TESTS_RAN=$(echo "$RESULT" | jq -r '.result.summary.testsRan // 0')
                   TOTAL_TIME=$(echo "$RESULT" | jq -r '.result.summary.totalTime // "0ms"')
@@ -168,7 +180,7 @@ jobs:
                     if [ "$FAILING" != "0" ]; then
                       echo ""
                       echo "🔍 Details of failed Tests:"
-                      echo "$RESULT" | jq -r '.result.tests[]? | select(.Outcome == "Fail") | "❌ \(.FullName): \(.Message // "Without message")"'
+                      echo "$RESULT" | jq -r '.result.tests[]? | select(.Outcome == "Fail") | "❌ \(.FullName): \(.Message // "Without message")"' 2>/dev/null || echo "Could not parse failed test details"
                     fi
                     
                     echo ""
@@ -177,26 +189,131 @@ jobs:
                     
                     # Fail the job if tests failed
                     if [ "$STATUS" = "Failed" ]; then
-                      echo "💥 Job failed due tests failed"
+                      echo "💥 Job failed due to failed tests"
                       exit 1
                     fi
                   fi
                 else
-                  echo "⚠️ Unable to get tests status, retrying in 30 secs..."
+                  echo "⚠️ Invalid JSON response received, retrying in 30 seconds..."
                 fi
               done
               
               if [ "$COMPLETED" = false ]; then
-                echo "⏰ Timeout: Tests did not complete in expected time."
+                echo "⏰ Timeout: Tests did not complete within 20 minutes"
                 exit 1
               fi
             else
-              echo "❌ Error: Could not get job ID."
-              echo "🔄 Trying run with traditional method as fallback"
+              echo "❌ Error: Could not get test run ID from command output"
+              echo "🔄 Trying traditional method as fallback..."
               sf apex test run -c -r human -d ./tests/apex -w 20 --target-org defaultOrg
             fi
           else
             echo "ℹ️ No Apex classes found. Skipping tests."
+          fi
+
+      # Delete temporary test file that Codecov is unable to parse
+      - name: "Delete coverage file (temporary step)"
+        run: |
+          if ls ./force-app/main/default/classes/*.cls 1> /dev/null 2>&1; then
+            find ./tests/apex -name "test-result-*-codecoverage.json" -delete 2>/dev/null || true
+          else
+            echo "No Apex classes found to delete coverage file."
+          fi
+
+      # Upload code coverage data
+      - name: "Upload code coverage for Apex to Codecov.io"
+        uses: codecov/codecov-action@v4
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          flags: Apex "$TEMP_OUTPUT" | tail -1)
+              
+              if [ -n "$TEST_RUN_RESULT" ]; then
+                echo "📋 Command output received, parsing JSON..."
+                TEST_RUN_ID=$(echo "$TEST_RUN_RESULT" | jq -r '.result.testRunId // null' 2>/dev/null)
+              else
+                echo "⚠️ No valid JSON found in output. Full output:"
+                cat "$TEMP_OUTPUT"
+                TEST_RUN_ID="null"
+              fi
+            else
+              echo "❌ Command failed. Output:"
+              cat "$TEMP_OUTPUT"
+              TEST_RUN_ID="null"
+            fi
+            
+            # Clean up temporary file
+            rm -f "$TEMP_OUTPUT"
+            
+            if [ "$TEST_RUN_ID" != "null" ] && [ -n "$TEST_RUN_ID" ]; then
+              echo "✅ Apex Tests started with ID: $TEST_RUN_ID"
+              
+              # Monitorear el progreso cada 30 segundos
+              COMPLETED=false
+              ATTEMPTS=0
+              MAX_ATTEMPTS=40  # 20 minutos máximo (40 * 30s)
+              
+              while [ "$COMPLETED" = false ] && [ $ATTEMPTS -lt $MAX_ATTEMPTS ]; do
+                sleep 30
+                ATTEMPTS=$((ATTEMPTS + 1))
+                
+                echo "⏳ Verificando progreso... (Intento $ATTEMPTS/$MAX_ATTEMPTS - $(date +%H:%M:%S))"
+                
+                # Obtener el estado actual de las pruebas
+                RESULT=$(sf apex test report -i $TEST_RUN_ID -r json --target-org defaultOrg 2>/dev/null || echo '{}')
+                
+                if [ "$RESULT" != "{}" ]; then
+                  STATUS=$(echo "$RESULT" | jq -r '.result.summary.outcome // "Unknown"')
+                  TESTS_RAN=$(echo "$RESULT" | jq -r '.result.summary.testsRan // 0')
+                  TOTAL_TIME=$(echo "$RESULT" | jq -r '.result.summary.totalTime // "0ms"')
+                  
+                  echo "📈 Estado: $STATUS | Pruebas ejecutadas: $TESTS_RAN | Tiempo transcurrido: $TOTAL_TIME"
+                  
+                  if [ "$STATUS" = "Completed" ] || [ "$STATUS" = "Failed" ]; then
+                    COMPLETED=true
+                    echo "🎯 Pruebas completadas con estado: $STATUS"
+                    
+                    # Mostrar resumen detallado
+                    PASSING=$(echo "$RESULT" | jq -r '.result.summary.passing // 0')
+                    FAILING=$(echo "$RESULT" | jq -r '.result.summary.failing // 0')
+                    COVERAGE=$(echo "$RESULT" | jq -r '.result.summary.testRunCoverage // "N/A"')
+                    
+                    echo "✅ Pruebas exitosas: $PASSING"
+                    echo "❌ Pruebas fallidas: $FAILING"
+                    echo "📊 Cobertura de código: $COVERAGE%"
+                    
+                    # Mostrar detalles de pruebas fallidas si existen
+                    if [ "$FAILING" != "0" ]; then
+                      echo ""
+                      echo "🔍 Detalles de pruebas fallidas:"
+                      echo "$RESULT" | jq -r '.result.tests[]? | select(.Outcome == "Fail") | "❌ \(.FullName): \(.Message // "Sin mensaje de error")"'
+                    fi
+                    
+                    echo ""
+                    echo "📄 Generando reporte detallado en formato human-readable..."
+                    sf apex test report -i $TEST_RUN_ID -r human --target-org defaultOrg -d ./tests/apex
+                    
+                    # Fallar el job si hay pruebas fallidas
+                    if [ "$STATUS" = "Failed" ]; then
+                      echo "💥 El job falló debido a pruebas fallidas"
+                      exit 1
+                    fi
+                  fi
+                else
+                  echo "⚠️ No se pudo obtener el estado de las pruebas, reintentando en 30 segundos..."
+                fi
+              done
+              
+              if [ "$COMPLETED" = false ]; then
+                echo "⏰ Timeout: Las pruebas tardaron más de 20 minutos en completarse"
+                exit 1
+              fi
+            else
+              echo "❌ Error: No se pudo obtener el ID de ejecución de pruebas"
+              echo "🔄 Intentando ejecutar con el método tradicional como fallback..."
+              sf apex test run -c -r human -d ./tests/apex -w 20 --target-org defaultOrg
+            fi
+          else
+            echo "ℹ️ No se encontraron clases Apex para ejecutar pruebas."
           fi
 
       # Delete temporary test file that Codecov is unable to parse
