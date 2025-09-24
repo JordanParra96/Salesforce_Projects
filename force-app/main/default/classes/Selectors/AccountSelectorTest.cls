@@ -4,15 +4,14 @@
 @isTest
 private class AccountSelectorTest {
   /**
-   * @description Test method for AccountSelector class.
+   * @description Setup method to create test data.
    */
-  @isTest
-  static void selectById() {
+  @TestSetup
+  static void makeData() {
     // Create a Unit Of Work
     fflib_SObjectUnitOfWork uow = new fflib_SObjectUnitOfWork(
       new List<Schema.SObjectType>{ Account.SObjectType }
     );
-
     List<Account> accList = new List<Account>{
       new Account(Name = 'Test Account 1'),
       new Account(Name = 'Test Account 2'),
@@ -21,9 +20,15 @@ private class AccountSelectorTest {
     for (Account acc : accList) {
       uow.registerNew(acc);
     }
-
     uow.commitWork();
+  }
 
+  /**
+   * @description Test method for AccountSelector class.
+   */
+  @isTest
+  static void selectById() {
+    List<Account> accList = new AccountsSelector().selectAll(3);
     list<Account> accounts = new AccountsSelector()
       .selectById(new Set<Id>{ accList[0].Id, accList[1].Id, accList[2].Id });
 
@@ -35,23 +40,7 @@ private class AccountSelectorTest {
    */
   @isTest
   static void selectByName() {
-    // Create a Unit Of Work
-    fflib_SObjectUnitOfWork uow = new fflib_SObjectUnitOfWork(
-      new List<Schema.SObjectType>{ Account.SObjectType }
-    );
-
-    List<Account> accList = new List<Account>{
-      new Account(Name = 'Test Account A'),
-      new Account(Name = 'Test Account B'),
-      new Account(Name = 'Test Account C')
-    };
-    for (Account acc : accList) {
-      uow.registerNew(acc);
-    }
-
-    uow.commitWork();
-
-    Set<String> nameSet = new Set<String>{ 'Test Account A', 'Test Account B' };
+    Set<String> nameSet = new Set<String>{ 'Test Account 1', 'Test Account 2' };
     List<Account> accounts = new AccountsSelector().selectByName(nameSet, 10);
 
     System.assertEquals(2, accounts.size(), 'Should select 2 accounts by name');
@@ -62,22 +51,6 @@ private class AccountSelectorTest {
    */
   @isTest
   static void selectAll() {
-    // Create a Unit Of Work
-    fflib_SObjectUnitOfWork uow = new fflib_SObjectUnitOfWork(
-      new List<Schema.SObjectType>{ Account.SObjectType }
-    );
-
-    List<Account> accList = new List<Account>{
-      new Account(Name = 'Test Account X'),
-      new Account(Name = 'Test Account Y'),
-      new Account(Name = 'Test Account Z')
-    };
-    for (Account acc : accList) {
-      uow.registerNew(acc);
-    }
-
-    uow.commitWork();
-
     List<Account> accounts = new AccountsSelector().selectAll();
 
     System.assert(
@@ -91,29 +64,11 @@ private class AccountSelectorTest {
    */
   @isTest
   static void selectAllWithLimit() {
-    // Create a Unit Of Work
-    fflib_SObjectUnitOfWork uow = new fflib_SObjectUnitOfWork(
-      new List<Schema.SObjectType>{ Account.SObjectType }
-    );
-
-    List<Account> accList = new List<Account>{
-      new Account(Name = 'Test Account 1'),
-      new Account(Name = 'Test Account 2'),
-      new Account(Name = 'Test Account 3'),
-      new Account(Name = 'Test Account 4'),
-      new Account(Name = 'Test Account 5')
-    };
-    for (Account acc : accList) {
-      uow.registerNew(acc);
-    }
-
-    uow.commitWork();
-
-    list<Account> accounts = new AccountsSelector().selectAll(3);
+    list<Account> accounts = new AccountsSelector().selectAll(2);
     System.assertEquals(
-      3,
+      2,
       accounts.size(),
-      'Should select 3 accounts with limit'
+      'Should select 2 accounts with limit'
     );
   }
 }

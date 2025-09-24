@@ -143,11 +143,8 @@ private class AccountWrapperTests {
   static void testNegativeAccountWrapperAvgPriceOfOpps() {
     // GIVEN
     Account acct = new AccountsSelector().selectAll(1)[0];
-    List<Opportunity> opps = [
-      SELECT Amount
-      FROM Opportunity
-      WHERE accountId = :acct.Id
-    ];
+    List<Opportunity> opps = new OpportunitiesSelector()
+      .selectByAccountId(new Set<Id>{ acct.Id });
     for (Opportunity o : opps) {
       o.Amount = 0;
     }

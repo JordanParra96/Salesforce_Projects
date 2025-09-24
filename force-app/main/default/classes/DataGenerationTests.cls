@@ -74,7 +74,7 @@ private class DataGenerationTests {
   @IsTest
   static void testAtTestSetupMethodsRule() {
     // WHEN
-    List<Opportunity> opps = [SELECT Id, AccountId FROM Opportunity];
+    List<Opportunity> opps = new OpportunitiesSelector().selectAll();
     // THEN
     Assert.areEqual(1, opps.size(), 'Expected test to find a single Opp');
   }
