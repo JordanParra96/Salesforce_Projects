@@ -5,7 +5,7 @@ name: CI on PR
 on:
   workflow_dispatch:
   pull_request:
-    types: [opened, edited, synchronize, reopened]
+    types: [opened, synchronize, reopened]
 
 # Jobs to be executed
 jobs:
@@ -116,192 +116,27 @@ jobs:
       - name: "Authenticate Dev environment"
         run: sf org login sfdx-url -f ./DEVHUB_SFDX_URL.txt -a defaultOrg -s
 
-      # Run Apex tests with progress monitoring
-      - name: "Run Apex tests with progress monitoring"
+      # Run Apex tests in current org org
+      - name: "Run Apex tests"
         run: |
           if ls ./force-app/main/default/classes/*.cls 1> /dev/null 2>&1; then
-            echo "🚀 Starting Apex Tests execution..."
-            
-            # Run tests in async mode and get job ID with better error handling
-            echo "📊 Executing tests with progress monitoring..."
-            
-            # Create temporary file for command output
-            TEMP_OUTPUT=$(mktemp)
-            
-            # Execute the command without -c (code coverage) first to avoid conflicts
-            echo "🎯 Starting test execution..."
-            if sf apex test run -r json --target-org defaultOrg > "$TEMP_OUTPUT" 2>&1; then
-              # Check if we got JSON response
-              TEST_RUN_RESULT=$(cat "$TEMP_OUTPUT")
-              
-              # Try to parse JSON
-              if echo "$TEST_RUN_RESULT" | jq empty 2>/dev/null; then
-                echo "📋 Valid JSON received, parsing test run ID..."
-                TEST_RUN_ID=$(echo "$TEST_RUN_RESULT" | jq -r '.result.testRunId // null' 2>/dev/null)
-              else
-                # If no JSON, try to extract test ID from text output
-                echo "📋 Text output received, trying to extract test ID..."
-                TEST_RUN_ID=$(echo "$TEST_RUN_RESULT" | grep -oE '707[a-zA-Z0-9]{12,15}' | head -1)
-                if [ -z "$TEST_RUN_ID" ]; then
-                  echo "⚠️ Could not extract test ID. Full output:"
-                  cat "$TEMP_OUTPUT"
-                  TEST_RUN_ID="null"
-                else
-                  echo "✅ Extracted test ID from text: $TEST_RUN_ID"
-                fi
-              fi
-            else
-              echo "❌ Command failed. Output:"
-              cat "$TEMP_OUTPUT"
-              TEST_RUN_ID="null"
-            fi
-            
-            # Clean up temporary file
-            rm -f "$TEMP_OUTPUT"
-            
-            if [ "$TEST_RUN_ID" != "null" ] && [ -n "$TEST_RUN_ID" ]; then
-              echo "✅ Apex Tests started with ID: $TEST_RUN_ID"
-              
-              # Monitor progress every 5 seconds for maximum responsiveness
-              COMPLETED=false
-              ATTEMPTS=0
-              MAX_ATTEMPTS=240  # 20 minutes max (240 * 5s)
-              
-              while [ "$COMPLETED" = false ] && [ $ATTEMPTS -lt $MAX_ATTEMPTS ]; do
-                sleep 5
-                ATTEMPTS=$((ATTEMPTS + 1))
-                
-                echo "⏳ Verifying progress... (Attempt $ATTEMPTS/$MAX_ATTEMPTS - $(date +%H:%M:%S))"
-                
-                # Get tests current status using the correct command
-                RESULT_TEMP=$(mktemp)
-                if sf apex get test --test-run-id "$TEST_RUN_ID" --target-org defaultOrg --json > "$RESULT_TEMP" 2>/dev/null; then
-                  RESULT=$(cat "$RESULT_TEMP")
-                  rm -f "$RESULT_TEMP"
-                  
-                  # Debug: show what we're getting
-                  echo "🔍 Response received, checking status..."
-                  
-                  # Validate JSON before parsing
-                  if echo "$RESULT" | jq empty 2>/dev/null; then
-                    STATUS=$(echo "$RESULT" | jq -r '.result.summary.outcome // .result.Outcome // "Unknown"' 2>/dev/null)
-                    TESTS_RAN=$(echo "$RESULT" | jq -r '.result.summary.testsRan // .result."Tests Ran" // 0' 2>/dev/null)
-                    PASS_RATE=$(echo "$RESULT" | jq -r '.result.summary.passRate // .result."Pass Rate" // "N/A"' 2>/dev/null)
-                    
-                    echo "📈 Status: $STATUS | Tests Ran: $TESTS_RAN | Pass Rate: $PASS_RATE"
-                    
-                    if [ "$STATUS" = "Passed" ] || [ "$STATUS" = "Failed" ] || [ "$STATUS" = "Completed" ]; then
-                      COMPLETED=true
-                      echo "🎯 Tests completed with status: $STATUS"
-                      
-                      # Get detailed results
-                      PASSING=$(echo "$RESULT" | jq -r '.result.summary.passing // (.result.summary.testsRan // 0)' 2>/dev/null)
-                      FAILING=$(echo "$RESULT" | jq -r '.result.summary.failing // 0' 2>/dev/null)
-                      FAIL_RATE=$(echo "$RESULT" | jq -r '.result."Fail Rate" // .result.summary.failRate // "0%"' 2>/dev/null)
-                      TOTAL_TIME=$(echo "$RESULT" | jq -r '.result."Test Total Time" // .result.summary.totalTime // "N/A"' 2>/dev/null)
-                      
-                      echo "✅ Total Tests: $TESTS_RAN"
-                      echo "✅ Pass Rate: $PASS_RATE"
-                      echo "❌ Fail Rate: $FAIL_RATE"
-                      echo "⏱️ Total Time: $TOTAL_TIME"
-                      
-                      # Generate final detailed report with code coverage (silently for files)
-                      echo ""
-                      echo "📄 Generating code coverage files..."
-                      sf apex get test --test-run-id "$TEST_RUN_ID" --target-org defaultOrg --code-coverage --result-format json --output-dir ./tests/apex > /dev/null 2>&1 || echo "⚠️ Could not generate JSON coverage files"
-                      
-                      # Show human-readable summary only
-                      echo ""
-                      echo "📋 Test Execution Summary:"
-                      sf apex get test --test-run-id "$TEST_RUN_ID" --target-org defaultOrg
-                      
-                      # Fail the job if tests failed
-                      if [ "$STATUS" = "Failed" ]; then
-                        echo "💥 Job failed due to failed tests"
-                        exit 1
-                      fi
-                    else
-                      echo "🔄 Tests still running (Status: $STATUS)..."
-                    fi
-                  else
-                    echo "⚠️ Invalid JSON response received. Raw response:"
-                    echo "$RESULT" | head -5
-                  fi
-                else
-                  echo "⚠️ Could not get test status using 'sf apex get test', retrying..."
-                  rm -f "$RESULT_TEMP"
-                fi
-              done
-              
-              if [ "$COMPLETED" = false ]; then
-                echo "⏰ Timeout: Tests did not complete within 20 minutes"
-                echo "🔍 Final status check..."
-                sf apex get test --test-run-id "$TEST_RUN_ID" --target-org defaultOrg || true
-                exit 1
-              fi
-            else
-              echo "❌ Error: Could not get test run ID from command output"
-              echo "🔄 Trying synchronous method as alternative..."
-              
-              # Use synchronous method with timeout and progress indicators
-              echo "⏳ Running tests synchronously with progress monitoring..."
-              
-              # Create tests/apex directory if it doesn't exist
-              mkdir -p ./tests/apex
-              
-              timeout 1200 bash -c '
-                sf apex test run -c -r human -d ./tests/apex --target-org defaultOrg --wait 20 &
-                PID=$!
-                
-                echo "🔄 Test execution started (PID: $PID)..."
-                
-                while kill -0 $PID 2>/dev/null; do
-                  echo "⏳ Tests in progress... $(date +%H:%M:%S)"
-                  sleep 5
-                done
-                
-                wait $PID
-                EXIT_CODE=$?
-                
-                if [ $EXIT_CODE -eq 0 ]; then
-                  echo "✅ All tests completed successfully!"
-                else
-                  echo "❌ Some tests failed or there was an error (exit code: $EXIT_CODE)"
-                fi
-                
-                exit $EXIT_CODE
-              ' || {
-                echo "💥 Tests failed or timed out"
-                exit 1
-              }
-            fi
+            sf project deploy validate --results-dir ./tests/apex -w 20 
           else
-            echo "ℹ️ No Apex classes found. Skipping tests."
+            echo "No Apex classes found to scan."
           fi
 
       # Delete temporary test file that Codecov is unable to parse
       - name: "Delete coverage file (temporary step)"
         run: |
           if ls ./force-app/main/default/classes/*.cls 1> /dev/null 2>&1; then
-            echo "🧹 Cleaning up problematic coverage files..."
-            find ./tests/apex -name "test-result-*-codecoverage.json" -delete 2>/dev/null || true
-            
-            echo "📁 Checking for valid coverage files..."
-            ls -la ./tests/apex/ || echo "No tests/apex directory found"
-            
-            # Look for any coverage files that might exist
-            find ./tests/apex -name "*coverage*" -type f 2>/dev/null || echo "No coverage files found"
+            rm ./tests/apex/test-result-707*-codecoverage.json
           else
             echo "No Apex classes found to delete coverage file."
           fi
 
       # Upload code coverage data
       - name: "Upload code coverage for Apex to Codecov.io"
-        if: always()
         uses: codecov/codecov-action@v4
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           flags: Apex
-          directory: ./tests/apex
-          fail_ci_if_error: false
-          verbose: true
