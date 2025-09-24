@@ -5,7 +5,7 @@ name: CI on PR
 on:
   workflow_dispatch:
   pull_request:
-    types: [opened, edited, synchronize, reopened]
+    types: [opened, synchronize, reopened]
 
 # Jobs to be executed
 jobs:
@@ -120,18 +120,9 @@ jobs:
       - name: "Run Apex tests"
         run: |
           if ls ./force-app/main/default/classes/*.cls 1> /dev/null 2>&1; then
-            sf apex test run -c -r human -d ./tests/apex -w 20 
+            sf project deploy validate --source-dir force-app --results-dir ./tests/apex --coverage-formatters json -w 20 
           else
             echo "No Apex classes found to scan."
-          fi
-
-      # Delete temporary test file that Codecov is unable to parse
-      - name: "Delete coverage file (temporary step)"
-        run: |
-          if ls ./force-app/main/default/classes/*.cls 1> /dev/null 2>&1; then
-            rm ./tests/apex/test-result-707*-codecoverage.json
-          else
-            echo "No Apex classes found to delete coverage file."
           fi
 
       # Upload code coverage data
