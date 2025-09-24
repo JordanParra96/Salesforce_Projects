@@ -123,7 +123,7 @@ jobs:
             echo "🚀 Starting Apex Tests execution..."
             
             # Run tests in async mode and get job ID with better error handling
-            echo "📊 Execution tests with progress monitoring..."
+            echo "📊 Executing tests with progress monitoring..."
             
             # Create temporary file for command output
             TEMP_OUTPUT=$(mktemp)
@@ -131,7 +131,27 @@ jobs:
             # Execute the command and capture both stdout and stderr
             if sf apex test run -c -r json --target-org defaultOrg > "$TEMP_OUTPUT" 2>&1; then
               # Try to extract JSON from the output (skip any warning lines)
-              TEST_RUN_RESULT=$(grep -E '^\s*\{.*\}\s*
+              TEST_RUN_RESULT=$(grep -E '^\s*\{.*\}\s*$' "$TEMP_OUTPUT" | tail -1)
+              
+              if [ -n "$TEST_RUN_RESULT" ]; then
+                echo "📋 Command output received, parsing JSON..."
+                TEST_RUN_ID=$(echo "$TEST_RUN_RESULT" | jq -r '.result.testRunId // null' 2>/dev/null)
+              else
+                echo "⚠️ No valid JSON found in output. Full output:"
+                cat "$TEMP_OUTPUT"
+                TEST_RUN_ID="null"
+              fi
+            else
+              echo "❌ Command failed. Output:"
+              cat "$TEMP_OUTPUT"
+              TEST_RUN_ID="null"
+            fi
+            
+            # Clean up temporary file
+            rm -f "$TEMP_OUTPUT"
+            
+            if [ "$TEST_RUN_ID" != "null" ] && [ -n "$TEST_RUN_ID" ]; then
+              echo "✅ Apex Tests started with ID: $TEST_RUN_ID"
               
               # Monitor progress every 30 seconds
               COMPLETED=false
