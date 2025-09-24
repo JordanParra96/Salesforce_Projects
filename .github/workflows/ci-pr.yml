@@ -162,13 +162,13 @@ jobs:
             if [ "$TEST_RUN_ID" != "null" ] && [ -n "$TEST_RUN_ID" ]; then
               echo "✅ Apex Tests started with ID: $TEST_RUN_ID"
               
-              # Monitor progress every 30 seconds
+              # Monitor progress every 10 seconds for more responsive feedback
               COMPLETED=false
               ATTEMPTS=0
-              MAX_ATTEMPTS=40  # 20 minutes max (40 * 30s)
+              MAX_ATTEMPTS=120  # 20 minutes max (120 * 10s)
               
               while [ "$COMPLETED" = false ] && [ $ATTEMPTS -lt $MAX_ATTEMPTS ]; do
-                sleep 30
+                sleep 10
                 ATTEMPTS=$((ATTEMPTS + 1))
                 
                 echo "⏳ Verifying progress... (Attempt $ATTEMPTS/$MAX_ATTEMPTS - $(date +%H:%M:%S))"
@@ -205,20 +205,15 @@ jobs:
                       echo "❌ Fail Rate: $FAIL_RATE"
                       echo "⏱️ Total Time: $TOTAL_TIME"
                       
-                      # Generate final detailed report
+                      # Generate final detailed report with code coverage
                       echo ""
-                      echo "📄 Generating final detailed report..."
-                      sf apex get test --test-run-id "$TEST_RUN_ID" --target-org defaultOrg
+                      echo "📄 Generating final detailed report with code coverage..."
+                      sf apex get test --test-run-id "$TEST_RUN_ID" --target-org defaultOrg --code-coverage --result-format json --output-dir ./tests/apex
                       
-                      # Also get code coverage if available
+                      # Also generate human-readable report
                       echo ""
-                      echo "📊 Getting code coverage information..."
-                      sf apex get test --test-run-id "$TEST_RUN_ID" --target-org defaultOrg --code-coverage --json > coverage_temp.json 2>/dev/null || true
-                      if [ -f coverage_temp.json ] && [ -s coverage_temp.json ]; then
-                        COVERAGE=$(cat coverage_temp.json | jq -r '.result.summary.testRunCoverage // "N/A"' 2>/dev/null)
-                        echo "📊 Code Coverage: $COVERAGE%"
-                        rm -f coverage_temp.json
-                      fi
+                      echo "📋 Generating human-readable report..."
+                      sf apex get test --test-run-id "$TEST_RUN_ID" --target-org defaultOrg --code-coverage
                       
                       # Fail the job if tests failed
                       if [ "$STATUS" = "Failed" ]; then
@@ -251,6 +246,9 @@ jobs:
               # Use synchronous method with timeout and progress indicators
               echo "⏳ Running tests synchronously with progress monitoring..."
               
+              # Create tests/apex directory if it doesn't exist
+              mkdir -p ./tests/apex
+              
               timeout 1200 bash -c '
                 sf apex test run -c -r human -d ./tests/apex --target-org defaultOrg --wait 20 &
                 PID=$!
@@ -259,7 +257,7 @@ jobs:
                 
                 while kill -0 $PID 2>/dev/null; do
                   echo "⏳ Tests in progress... $(date +%H:%M:%S)"
-                  sleep 30
+                  sleep 10
                 done
                 
                 wait $PID
@@ -285,14 +283,25 @@ jobs:
       - name: "Delete coverage file (temporary step)"
         run: |
           if ls ./force-app/main/default/classes/*.cls 1> /dev/null 2>&1; then
+            echo "🧹 Cleaning up problematic coverage files..."
             find ./tests/apex -name "test-result-*-codecoverage.json" -delete 2>/dev/null || true
+            
+            echo "📁 Checking for valid coverage files..."
+            ls -la ./tests/apex/ || echo "No tests/apex directory found"
+            
+            # Look for any coverage files that might exist
+            find ./tests/apex -name "*coverage*" -type f 2>/dev/null || echo "No coverage files found"
           else
             echo "No Apex classes found to delete coverage file."
           fi
 
       # Upload code coverage data
       - name: "Upload code coverage for Apex to Codecov.io"
+        if: always()
         uses: codecov/codecov-action@v4
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           flags: Apex
+          directory: ./tests/apex
+          fail_ci_if_error: false
+          verbose: true
