@@ -116,20 +116,94 @@ jobs:
       - name: "Authenticate Dev environment"
         run: sf org login sfdx-url -f ./DEVHUB_SFDX_URL.txt -a defaultOrg -s
 
-      # Run Apex tests in current org org
-      - name: "Run Apex tests"
+      # Run Apex tests with progress monitoring
+      - name: "Run Apex tests with progress monitoring"
         run: |
           if ls ./force-app/main/default/classes/*.cls 1> /dev/null 2>&1; then
-            sf apex test run -c -r human -d ./tests/apex -w 20 
+            echo "🚀 Starting Apex Tests execution..."
+            
+            # Run tests in async mode and get job ID
+            echo "📊 Execution tests with progress monitoring..."
+            TEST_RUN_RESULT=$(sf apex test run -c -r json --target-org defaultOrg 2>/dev/null || echo '{"result": {"testRunId": null}}')
+            TEST_RUN_ID=$(echo "$TEST_RUN_RESULT" | jq -r '.result.testRunId // null')
+            
+            if [ "$TEST_RUN_ID" != "null" ] && [ -n "$TEST_RUN_ID" ]; then
+              echo "✅ Apex Tests started with ID: $TEST_RUN_ID"
+              
+              # Monitor progress every 30 seconds
+              COMPLETED=false
+              ATTEMPTS=0
+              MAX_ATTEMPTS=40  # 20 minutes max (40 * 30s)
+              
+              while [ "$COMPLETED" = false ] && [ $ATTEMPTS -lt $MAX_ATTEMPTS ]; do
+                sleep 30
+                ATTEMPTS=$((ATTEMPTS + 1))
+                
+                echo "⏳ Verifying progress... (Attempt $ATTEMPTS/$MAX_ATTEMPTS - $(date +%H:%M:%S))"
+                
+                # Get tests current status
+                RESULT=$(sf apex test report -i $TEST_RUN_ID -r json --target-org defaultOrg 2>/dev/null || echo '{}')
+                
+                if [ "$RESULT" != "{}" ]; then
+                  STATUS=$(echo "$RESULT" | jq -r '.result.summary.outcome // "Unknown"')
+                  TESTS_RAN=$(echo "$RESULT" | jq -r '.result.summary.testsRan // 0')
+                  TOTAL_TIME=$(echo "$RESULT" | jq -r '.result.summary.totalTime // "0ms"')
+                  
+                  echo "📈 Status: $STATUS | Executed Tests: $TESTS_RAN | Total Time: $TOTAL_TIME"
+                  
+                  if [ "$STATUS" = "Completed" ] || [ "$STATUS" = "Failed" ]; then
+                    COMPLETED=true
+                    echo "🎯 Tests completed with status: $STATUS"
+                    
+                    # Get detailed results
+                    PASSING=$(echo "$RESULT" | jq -r '.result.summary.passing // 0')
+                    FAILING=$(echo "$RESULT" | jq -r '.result.summary.failing // 0')
+                    COVERAGE=$(echo "$RESULT" | jq -r '.result.summary.testRunCoverage // "N/A"')
+                    
+                    echo "✅ Success Tests: $PASSING"
+                    echo "❌ Failed Tests: $FAILING"
+                    echo "📊 Code Coverage: $COVERAGE%"
+                    
+                    # Get details of failed tests if exist
+                    if [ "$FAILING" != "0" ]; then
+                      echo ""
+                      echo "🔍 Details of failed Tests:"
+                      echo "$RESULT" | jq -r '.result.tests[]? | select(.Outcome == "Fail") | "❌ \(.FullName): \(.Message // "Without message")"'
+                    fi
+                    
+                    echo ""
+                    echo "📄 Generating detailed report in human-readable format..."
+                    sf apex test report -i $TEST_RUN_ID -r human --target-org defaultOrg -d ./tests/apex
+                    
+                    # Fail the job if tests failed
+                    if [ "$STATUS" = "Failed" ]; then
+                      echo "💥 Job failed due tests failed"
+                      exit 1
+                    fi
+                  fi
+                else
+                  echo "⚠️ Unable to get tests status, retrying in 30 secs..."
+                fi
+              done
+              
+              if [ "$COMPLETED" = false ]; then
+                echo "⏰ Timeout: Tests did not complete in expected time."
+                exit 1
+              fi
+            else
+              echo "❌ Error: Could not get job ID."
+              echo "🔄 Trying run with traditional method as fallback"
+              sf apex test run -c -r human -d ./tests/apex -w 20 --target-org defaultOrg
+            fi
           else
-            echo "No Apex classes found to scan."
+            echo "ℹ️ No Apex classes found. Skipping tests."
           fi
 
       # Delete temporary test file that Codecov is unable to parse
       - name: "Delete coverage file (temporary step)"
         run: |
           if ls ./force-app/main/default/classes/*.cls 1> /dev/null 2>&1; then
-            rm ./tests/apex/test-result-707*-codecoverage.json
+            find ./tests/apex -name "test-result-*-codecoverage.json" -delete 2>/dev/null || true
           else
             echo "No Apex classes found to delete coverage file."
           fi
