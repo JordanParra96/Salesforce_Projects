@@ -8,55 +8,18 @@ private class HouseServiceTest {
    */
   @testSetup
   static void setup() {
-    // Create unit of work
     fflib_SObjectUnitOfWork uow = new fflib_SObjectUnitOfWork(
       new List<Schema.SObjectType>{ House__c.SObjectType, User.SObjectType }
     );
-    Profile p = new ProfileSelector()
-      .selectByName(new Set<String>{ 'Standard User' }, 1)[0];
-    User usr = new User(
-      LastName = 'TEST',
-      FirstName = 'Fail',
-      Alias = 'ftest',
-      Email = 'f.test@asdf.com',
-      Username = 'f.test@asdf.com',
-      ProfileId = p.id,
-      TimeZoneSidKey = 'GMT',
-      LanguageLocaleKey = 'en_US',
-      EmailEncodingKey = 'UTF-8',
-      LocaleSidKey = 'en_US'
-    );
-    // Register user for creation
+
+    User usr = TestFactory.generateUser('Standard User', false);
     uow.registerNew(usr);
 
-    List<House__c> houses = new List<House__c>{
-      new House__c(
-        Name = 'House 1',
-        Address__c = '123 Main St',
-        State__c = 'CA',
-        City__c = 'LA',
-        Zip__c = '90001'
-      ),
-      new House__c(
-        Name = 'House 2',
-        Address__c = '456 Oak Ave',
-        State__c = 'CA',
-        City__c = 'SF',
-        Zip__c = '94101'
-      ),
-      new House__c(
-        Name = 'House 3',
-        Address__c = '789 Pine Rd',
-        State__c = 'CA',
-        City__c = 'SD',
-        Zip__c = '92101'
-      )
-    };
-    // Register houses for creation
+    List<House__c> houses = TestFactory.generateHouses(3, false);
     for (House__c h : houses) {
       uow.registerNew(h);
     }
-    // Insert user and houses
+
     uow.commitWork();
   }
   /**
@@ -92,7 +55,7 @@ private class HouseServiceTest {
   @isTest
   static void testGetRecordsThrownException() {
     List<User> testUsers = new UsersSelector()
-      .selectByLastname(new Set<String>{ 'TEST' }, 1);
+      .selectByLastname(new Set<String>{ 'last' }, 1);
     System.runAs(testUsers[0]) {
       // Simulate a scenario where a QueryException is thrown
       Test.startTest();

@@ -9,40 +9,48 @@ private class AccountWrapperTests {
   @TestSetup
   static void loadTestData() {
     // GIVEN
-    List<Account> accounts = new List<Account>();
-    Account acme = new Account(Name = 'ACME');
-    accounts.add(acme);
-    Account testAccount = new Account(Name = 'Test Account');
-    accounts.add(testAccount);
-    Account moduleAcc = new Account(Name = 'Module Account');
-    accounts.add(moduleAcc);
-    Account negativeAccount = new Account(Name = 'Negative Account');
-    accounts.add(negativeAccount);
-    insert accounts;
+    fflib_SObjectUnitOfWork uow = new fflib_SObjectUnitOfWork(
+      new List<Schema.SObjectType>{ Opportunity.SObjectType }
+    );
+    List<Account> accounts = TestFactory.generateAccountsWithNames(
+      new List<String>{
+        'ACME',
+        'Test Account',
+        'Module Account',
+        'Negative Account'
+      },
+      true
+    );
+
     List<Opportunity> opps = TestFactory.generateOppsForAccount(
       accounts[0].id,
       1000.00,
       5
     );
-    insert opps;
+    uow.registerNew(opps);
+
     List<Opportunity> highPriorityopps = TestFactory.generateOppsForAccount(
       accounts[1].id,
       1000000.00,
       5
     );
-    insert highPriorityopps;
+    uow.registerNew(highPriorityopps);
+
     List<Opportunity> moduleOpps = TestFactory.generateOppsForAccount(
       accounts[2].id,
       9500.00,
       5
     );
-    insert moduleOpps;
+    uow.registerNew(moduleOpps);
+
     List<Opportunity> negativeOpps = TestFactory.generateOppsForAccount(
       accounts[3].id,
       -10.00,
       5
     );
-    insert negativeOpps;
+    uow.registerNew(negativeOpps);
+
+    uow.commitWork();
   }
 
   /**
@@ -142,13 +150,18 @@ private class AccountWrapperTests {
   @IsTest
   static void testNegativeAccountWrapperAvgPriceOfOpps() {
     // GIVEN
+    fflib_SObjectUnitOfWork uow = new fflib_SObjectUnitOfWork(
+      new List<Schema.SObjectType>{ Opportunity.SObjectType }
+    );
+
     Account acct = new AccountsSelector().selectAll(1)[0];
     List<Opportunity> opps = new OpportunitiesSelector()
       .selectByAccountId(new Set<Id>{ acct.Id });
     for (Opportunity o : opps) {
       o.Amount = 0;
+      uow.registerDirty(o);
     }
-    update opps;
+    uow.commitWork();
     AccountWrapper acctWrapper = new AccountWrapper(acct);
     // WHEN
     try {
