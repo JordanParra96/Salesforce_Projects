@@ -81,19 +81,19 @@ public class TestFactory {
    * @return The created Contact.
    */
   public static Contact getContact(Map<String, Object> params) {
-    Id accountId = (Id) params.get('accountId');
+    fflib_SObjectUnitOfWork uowContact = new fflib_SObjectUnitOfWork(
+      new List<Schema.SObjectType>{ Contact.SObjectType }
+    );
+    Account acc = (Account) params.get('account');
     String firstName = (String) params.get('fname');
     String lastName = (String) params.get('lname');
     Boolean doInsert = (Boolean) params.get('doInsert');
 
-    Contact c = new Contact(
-      firstName = firstName,
-      lastName = lastName,
-      accountId = accountId
-    );
+    Contact c = new Contact(FirstName = firstName, LastName = lastName);
     if (doInsert) {
-      uow.registerNew(c);
-      uow.commitWork();
+      uowContact.registerRelationship(c, Contact.AccountId, acc);
+      uowContact.registerNew(c);
+      uowContact.commitWork();
     }
     return c;
   }
@@ -103,20 +103,28 @@ public class TestFactory {
    * @param numContacts The number of Contacts to create for the Account.
    */
   public static void generateAccountWithContacts(Integer numContacts) {
+    fflib_SObjectUnitOfWork uowContact = new fflib_SObjectUnitOfWork(
+      new List<Schema.SObjectType>{ Contact.SObjectType }
+    );
     Account a = getAccount('default account ltd', true);
     List<Contact> contacts = new List<Contact>();
     for (Integer i = 0; i < numContacts; i++) {
       String contactName = 'contact' + i;
       Map<String, Object> contactParams = new Map<String, Object>{
-        'accountId' => a.Id,
+        'account' => a,
         'fname' => contactName,
         'lname' => contactName,
         'doInsert' => false
       };
+      uowContact.registerRelationship(
+        getContact(contactParams),
+        Contact.AccountId,
+        a
+      );
       contacts.add(getContact(contactParams));
     }
-    uow.registerNew(contacts);
-    uow.commitWork();
+    uowContact.registerNew(contacts);
+    uowContact.commitWork();
   }
 
   /**
