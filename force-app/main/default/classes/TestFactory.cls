@@ -5,6 +5,15 @@
  */
 @isTest
 public class TestFactory {
+  private static fflib_SObjectUnitOfWork uow = new fflib_SObjectUnitOfWork(
+    new List<Schema.SObjectType>{
+      Account.SObjectType,
+      Contact.SObjectType,
+      House__c.SObjectType,
+      User.SObjectType,
+      Case.SObjectType
+    }
+  );
   /**
    * @description Creates an Account with the specified name.
    * @param name The name of the Account to create.
@@ -14,9 +23,52 @@ public class TestFactory {
   public static Account getAccount(String name, Boolean doInsert) {
     Account a = new Account(name = name);
     if (doInsert) {
-      insert a;
+      uow.registerNew(a);
+      uow.commitWork();
     }
     return a;
+  }
+
+  /**
+   * @description Generates a specified number of Accounts.
+   * @param numAccounts The number of Accounts to create.
+   * @param doInsert Whether to insert the Accounts into the database.
+   * @return An array of created Accounts.
+   */
+  public static Account[] generateAccounts(
+    Integer numAccounts,
+    Boolean doInsert
+  ) {
+    List<Account> accounts = new List<Account>();
+    for (Integer i = 0; i < numAccounts; i++) {
+      accounts.add(new Account(name = 'Test ' + i));
+    }
+    if (doInsert) {
+      uow.registerNew(accounts);
+      uow.commitWork();
+    }
+    return accounts;
+  }
+
+  /**
+   * @description Generates Accounts with specified names.
+   * @param names A list of names for the Accounts to create.
+   * @param doInsert Whether to insert the Accounts into the database.
+   * @return An array of created Accounts.
+   */
+  public static Account[] generateAccountsWithNames(
+    List<String> names,
+    Boolean doInsert
+  ) {
+    List<Account> accounts = new List<Account>();
+    for (String name : names) {
+      accounts.add(new Account(name = name));
+    }
+    if (doInsert) {
+      uow.registerNew(accounts);
+      uow.commitWork();
+    }
+    return accounts;
   }
 
   /**
@@ -29,18 +81,19 @@ public class TestFactory {
    * @return The created Contact.
    */
   public static Contact getContact(Map<String, Object> params) {
-    Id accountId = (Id) params.get('accountId');
+    fflib_SObjectUnitOfWork uowContact = new fflib_SObjectUnitOfWork(
+      new List<Schema.SObjectType>{ Contact.SObjectType }
+    );
+    Account acc = (Account) params.get('account');
     String firstName = (String) params.get('fname');
     String lastName = (String) params.get('lname');
     Boolean doInsert = (Boolean) params.get('doInsert');
 
-    Contact c = new Contact(
-      firstName = firstName,
-      lastName = lastName,
-      accountId = accountId
-    );
+    Contact c = new Contact(FirstName = firstName, LastName = lastName);
     if (doInsert) {
-      insert c;
+      uowContact.registerRelationship(c, Contact.AccountId, acc);
+      uowContact.registerNew(c);
+      uowContact.commitWork();
     }
     return c;
   }
@@ -50,19 +103,28 @@ public class TestFactory {
    * @param numContacts The number of Contacts to create for the Account.
    */
   public static void generateAccountWithContacts(Integer numContacts) {
+    fflib_SObjectUnitOfWork uowContact = new fflib_SObjectUnitOfWork(
+      new List<Schema.SObjectType>{ Contact.SObjectType }
+    );
     Account a = getAccount('default account ltd', true);
     List<Contact> contacts = new List<Contact>();
     for (Integer i = 0; i < numContacts; i++) {
       String contactName = 'contact' + i;
       Map<String, Object> contactParams = new Map<String, Object>{
-        'accountId' => a.Id,
+        'account' => a,
         'fname' => contactName,
         'lname' => contactName,
         'doInsert' => false
       };
+      uowContact.registerRelationship(
+        getContact(contactParams),
+        Contact.AccountId,
+        a
+      );
       contacts.add(getContact(contactParams));
     }
-    insert contacts;
+    uowContact.registerNew(contacts);
+    uowContact.commitWork();
   }
 
   /**
@@ -93,14 +155,10 @@ public class TestFactory {
   /**
    * @description Generates a User with the specified profile name.
    * @param profileName The name of the Profile for the User.
+   * @param doInsert Whether to insert the User into the database.
    * @return The created User.
    */
-  public static User generateUser(String profileName) {
-    UserRole userRole = new UserRole(
-      DeveloperName = 'TestingTeam',
-      Name = 'Testing Team'
-    );
-    insert userRole;
+  public static User generateUser(String profileName, Boolean doInsert) {
     User u = new User(
       ProfileId = new ProfileSelector()
           .selectByName(new Set<String>{ profileName }, 1)[0]
@@ -116,10 +174,56 @@ public class TestFactory {
       TimeZoneSidKey = 'America/Los_Angeles',
       EmailEncodingKey = 'UTF-8',
       LanguageLocaleKey = 'en_US',
-      LocaleSidKey = 'en_US',
-      UserRoleId = userRole.Id
+      LocaleSidKey = 'en_US'
     );
-    insert u;
+    if (doInsert) {
+      uow.registerNew(u);
+    }
+    uow.commitWork();
     return u;
+  }
+
+  /**
+   * @description Generates a specified number of House__c records.
+   * @param numHouses The number of House__c records to create.
+   * @param doInsert Whether to insert the records into the database.
+   * @return An array of created House__c records.
+   */
+  public static House__c[] generateHouses(Integer numHouses, Boolean doInsert) {
+    List<House__c> houses = new List<House__c>();
+    for (Integer i = 0; i < numHouses; i++) {
+      houses.add(
+        new House__c(
+          Name = 'House ' + i,
+          Address__c = '123 Main St ' + i,
+          State__c = 'CA',
+          City__c = 'City ' + i,
+          Zip__c = '9000' + i
+        )
+      );
+    }
+    if (doInsert) {
+      uow.registerNew(houses);
+      uow.commitWork();
+    }
+    return houses;
+  }
+
+  /**
+   * @description Generates a specified number of Cases.
+   * @param numCases The number of Cases to create.
+   * @param doInsert Whether to insert the Cases into the database.
+   * @return An array of created Cases.
+   */
+  public static Case[] generateCases(Integer numCases, Boolean doInsert) {
+    List<Case> cases = new List<Case>();
+    for (Integer i = 0; i < numCases; i++) {
+      cases.add(new Case(Subject = 'Case ' + i, Status = 'New'));
+    }
+    if (doInsert) {
+      uow.registerNew(cases);
+      uow.commitWork();
+    }
+    return cases;
   }
 }

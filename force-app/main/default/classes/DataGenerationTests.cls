@@ -12,7 +12,7 @@ private class DataGenerationTests {
     // GIVEN
     Account a = TestFactory.getAccount('Muddy Waters Inc.', true);
     Map<String, Object> contactParams = new Map<String, Object>{
-      'accountId' => a.Id,
+      'account' => a,
       'fname' => 'Muddy',
       'lname' => 'Waters',
       'doInsert' => true

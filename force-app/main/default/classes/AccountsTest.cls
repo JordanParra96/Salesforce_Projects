@@ -12,12 +12,7 @@ private class AccountsTest {
     fflib_SObjectUnitOfWork uow = new fflib_SObjectUnitOfWork(
       new List<Schema.SObjectType>{ Account.SObjectType }
     );
-    List<Account> accList = new List<Account>{
-      new Account(Name = 'Test 1', Description = 'Hello World'),
-      new Account(Name = 'Test 2', Description = 'Domain classes rock!'),
-      new Account(Name = 'Test 3', Description = ''),
-      new Account(Name = 'Test 4', Description = null)
-    };
+    List<Account> accList = TestFactory.generateAccounts(4, false);
     // Register accounts for creation
     for (Account acc : accList) {
       uow.registerNew(acc);
@@ -41,22 +36,8 @@ private class AccountsTest {
    */
   @isTest
   static void onBeforeUpdate() {
-    // Create a Unit Of Work
-    fflib_SObjectUnitOfWork uowInsert = new fflib_SObjectUnitOfWork(
-      new List<Schema.SObjectType>{ Account.SObjectType }
-    );
-    List<Account> accList = new List<Account>{
-      new Account(Name = 'Test 1', Description = 'Hello World'),
-      new Account(Name = 'Test 2', Description = 'Domain classes rock!'),
-      new Account(Name = 'Test 3', Description = ''),
-      new Account(Name = 'Test 4', Description = null)
-    };
-    // Insert accounts
-    for (Account acc : accList) {
-      uowInsert.registerNew(acc);
-    }
+    List<Account> accList = TestFactory.generateAccounts(4, true);
 
-    uowInsert.commitWork();
     Test.startTest();
     //Create a new Unit Of Work for updates
     fflib_SObjectUnitOfWork uowUpdate = new fflib_SObjectUnitOfWork(
@@ -71,7 +52,7 @@ private class AccountsTest {
 
     List<Account> updatedAccounts = new AccountsSelector()
       .selectByName(
-        new Set<String>{ 'Test 1', 'Test 2', 'Test 3', 'Test 4' },
+        new Set<String>{ 'Test 0', 'Test 1', 'Test 2', 'Test 3' },
         10
       );
 
