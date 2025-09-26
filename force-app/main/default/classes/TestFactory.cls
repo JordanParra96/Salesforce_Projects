@@ -186,6 +186,35 @@ public class TestFactory {
   }
 
   /**
+   * @description Generates a Private_Object__c associated with the specified Account.
+   * @param params A map containing parameters for the Private_Object__c:
+   *               - account: The Account to associate with.
+   *               - notes: The notes for the Private_Object__c.
+   *               - doInsert: Whether to insert the Private_Object__c into the database.
+   * @return The created Private_Object__c.
+   */
+  public static Private_Object__c getPrivateObject(Map<String, Object> params) {
+    fflib_SObjectUnitOfWork uowPrivateObject = new fflib_SObjectUnitOfWork(
+      new List<Schema.SObjectType>{ Private_Object__c.SObjectType }
+    );
+    Account acc = (Account) params.get('account');
+    String notes = (String) params.get('notes');
+    Boolean doInsert = (Boolean) params.get('doInsert');
+
+    Private_Object__c po = new Private_Object__c(Notes__c = notes);
+    if (doInsert) {
+      uowPrivateObject.registerRelationship(
+        po,
+        Private_Object__c.Account__c,
+        acc
+      );
+      uowPrivateObject.registerNew(po);
+      uowPrivateObject.commitWork();
+    }
+    return po;
+  }
+
+  /**
    * @description Generates a User with the specified profile name.
    * @param profileName The name of the Profile for the User.
    * @param doInsert Whether to insert the User into the database.

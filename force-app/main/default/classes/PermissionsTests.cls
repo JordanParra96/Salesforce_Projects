@@ -10,11 +10,12 @@ private class PermissionsTests {
   static void testSetup() {
     // GIVEN
     Account a = TestFactory.getAccount('No view For You!', true);
-    Private_Object__c po = new Private_Object__c(
-      Account__c = a.id,
-      Notes__c = 'foo'
-    );
-    insert po;
+    Map<String, Object> poParams = new Map<String, Object>{
+      'account' => a,
+      'notes' => 'foo',
+      'doInsert' => true
+    };
+    Private_Object__c po = TestFactory.getPrivateObject(poParams);
   }
 
   /**
@@ -23,22 +24,7 @@ private class PermissionsTests {
   @IsTest
   static void testNegativePermissionSet() {
     // GIVEN
-    User u = new User(
-      ProfileId = new ProfileSelector()
-          .selectByName(new Set<String>{ 'Standard User' }, 1)[0]
-        .Id,
-      LastName = 'last',
-      Email = 'Cpt.Awesome@awesomesauce.com',
-      UserName = 'Cpt.Awesome.' +
-        DateTime.now().getTime() +
-        '@awesomesauce.com',
-      Alias = 'alias',
-      TimeZoneSidKey = 'America/Los_Angeles',
-      EmailEncodingKey = 'UTF-8',
-      LanguageLocaleKey = 'en_US',
-      LocaleSidKey = 'en_US'
-    );
-    insert u;
+    User u = TestFactory.generateUser('Standard User', true);
     System.runAs(u) {
       // WHEN
       Test.startTest();
@@ -62,22 +48,7 @@ private class PermissionsTests {
   @IsTest
   static void testPositivePermissionSet() {
     // GIVEN
-    User u = new User(
-      ProfileId = new ProfileSelector()
-          .selectByName(new Set<String>{ 'Standard User' }, 1)[0]
-        .Id,
-      LastName = 'last',
-      Email = 'Cpt.Awesome@awesomesauce.com',
-      UserName = 'Cpt.Awesome.' +
-        DateTime.now().getTime() +
-        '@awesomesauce.com',
-      Alias = 'alias',
-      TimeZoneSidKey = 'America/Los_Angeles',
-      EmailEncodingKey = 'UTF-8',
-      LanguageLocaleKey = 'en_US',
-      LocaleSidKey = 'en_US'
-    );
-    insert u;
+    User u = TestFactory.generateUser('Standard User', true);
 
     PermissionSet ps = [
       SELECT Id
