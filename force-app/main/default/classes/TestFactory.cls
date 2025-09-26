@@ -153,6 +153,39 @@ public class TestFactory {
   }
 
   /**
+   * @description Generates Opportunity for a specified Account using parameters.
+   * @param params A map containing parameters for the Opportunity:
+   *               - account: The Account to associate with.
+   *               - name: The name of the Opportunity.
+   *               - closeDate: The close date of the Opportunity.
+   *               - stageName: The stage name of the Opportunity.
+   *               - doInsert: Whether to insert the Opportunity into the database.
+   * @return An array of created Opportunity.
+   */
+  public static Opportunity getOpportunity(Map<String, Object> params) {
+    fflib_SObjectUnitOfWork uowOpp = new fflib_SObjectUnitOfWork(
+      new List<Schema.SObjectType>{ Opportunity.SObjectType }
+    );
+    Account acc = (Account) params.get('account');
+    String name = (String) params.get('name');
+    Date closeDate = (Date) params.get('closeDate');
+    String stageName = (String) params.get('stageName');
+    Boolean doInsert = (Boolean) params.get('doInsert');
+
+    Opportunity opp = new Opportunity(
+      name = name,
+      closeDate = closeDate,
+      stageName = stageName
+    );
+    if (doInsert) {
+      uowOpp.registerRelationship(opp, Opportunity.AccountId, acc);
+      uowOpp.registerNew(opp);
+      uowOpp.commitWork();
+    }
+    return opp;
+  }
+
+  /**
    * @description Generates a User with the specified profile name.
    * @param profileName The name of the Profile for the User.
    * @param doInsert Whether to insert the User into the database.
