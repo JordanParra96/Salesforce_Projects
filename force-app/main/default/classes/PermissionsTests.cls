@@ -10,11 +10,12 @@ private class PermissionsTests {
   static void testSetup() {
     // GIVEN
     Account a = TestFactory.getAccount('No view For You!', true);
-    Private_Object__c po = new Private_Object__c(
-      Account__c = a.id,
-      Notes__c = 'foo'
-    );
-    insert po;
+    Map<String, Object> poParams = new Map<String, Object>{
+      'account' => a,
+      'notes' => 'foo',
+      'doInsert' => true
+    };
+    Private_Object__c po = TestFactory.getPrivateObject(poParams);
   }
 
   /**
@@ -23,36 +24,23 @@ private class PermissionsTests {
   @IsTest
   static void testNegativePermissionSet() {
     // GIVEN
-    User u = new User(
-      ProfileId = new ProfileSelector()
-          .selectByName(new Set<String>{ 'Standard User' }, 1)[0]
-        .Id,
-      LastName = 'last',
-      Email = 'Cpt.Awesome@awesomesauce.com',
-      UserName = 'Cpt.Awesome.' +
-        DateTime.now().getTime() +
-        '@awesomesauce.com',
-      Alias = 'alias',
-      TimeZoneSidKey = 'America/Los_Angeles',
-      EmailEncodingKey = 'UTF-8',
-      LanguageLocaleKey = 'en_US',
-      LocaleSidKey = 'en_US'
-    );
-    insert u;
+    User u = TestFactory.generateUser('Standard User', true);
     System.runAs(u) {
       // WHEN
-      Test.startTest();
-      Private_Object__c[] pos = [
-        SELECT Id, Account__c, Notes__c
-        FROM Private_Object__c
-      ];
-      Test.stopTest();
-      // THEN
-      Assert.areEqual(
-        0,
-        pos.size(),
-        'A user without the permission set shouldn\'t see any records'
-      );
+      try {
+        Test.startTest();
+        Private_Object__c[] pos = new PrivateObjectSelector().selectAll();
+        Test.stopTest();
+        Assert.fail(
+          'User without permission set should not access Private_Object__c records'
+        );
+      } catch (Exception e) {
+        // THEN
+        System.assert(
+          e.getMessage()
+            .contains('Permission to access an Private_Object__c denied')
+        );
+      }
     }
   }
 
@@ -62,22 +50,7 @@ private class PermissionsTests {
   @IsTest
   static void testPositivePermissionSet() {
     // GIVEN
-    User u = new User(
-      ProfileId = new ProfileSelector()
-          .selectByName(new Set<String>{ 'Standard User' }, 1)[0]
-        .Id,
-      LastName = 'last',
-      Email = 'Cpt.Awesome@awesomesauce.com',
-      UserName = 'Cpt.Awesome.' +
-        DateTime.now().getTime() +
-        '@awesomesauce.com',
-      Alias = 'alias',
-      TimeZoneSidKey = 'America/Los_Angeles',
-      EmailEncodingKey = 'UTF-8',
-      LanguageLocaleKey = 'en_US',
-      LocaleSidKey = 'en_US'
-    );
-    insert u;
+    User u = TestFactory.generateUser('Standard User', true);
 
     PermissionSet ps = [
       SELECT Id
@@ -92,10 +65,7 @@ private class PermissionsTests {
     System.runAs(u) {
       // WHEN
       Test.startTest();
-      Private_Object__c[] pos = [
-        SELECT Id, Account__c, Notes__c
-        FROM Private_Object__c
-      ];
+      Private_Object__c[] pos = new PrivateObjectSelector().selectAll();
       Test.stopTest();
       // THEN
       Assert.areEqual(

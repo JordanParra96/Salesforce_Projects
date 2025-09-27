@@ -18,12 +18,15 @@ private class DataGenerationTests {
       'doInsert' => true
     };
     Contact c = TestFactory.getContact(contactParams);
-    Opportunity opp = new Opportunity();
-    opp.name = 'Long lost record';
-    opp.accountId = a.id;
-    opp.closeDate = Date.today().addDays(14);
-    opp.stageName = 'prospecting';
-    insert opp;
+
+    Map<String, Object> oppParams = new Map<String, Object>{
+      'account' => a,
+      'name' => 'Long lost record',
+      'closeDate' => Date.today().addDays(14),
+      'stageName' => 'prospecting',
+      'doInsert' => true
+    };
+    Opportunity opp = TestFactory.getOpportunity(oppParams);
   }
 
   /**

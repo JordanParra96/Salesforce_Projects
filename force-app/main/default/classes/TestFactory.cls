@@ -11,7 +11,8 @@ public class TestFactory {
       Contact.SObjectType,
       House__c.SObjectType,
       User.SObjectType,
-      Case.SObjectType
+      Case.SObjectType,
+      Private_Object__c.SObjectType
     }
   );
   /**
@@ -150,6 +151,87 @@ public class TestFactory {
       opps.add(o);
     }
     return opps;
+  }
+
+  /**
+   * @description Generates an Account with a specified number of Private_Object__c records.
+   * @param numpos The number of Private_Object__c records to create for the Account
+   */
+  public static void generateAccountWithPrivateObjects(Integer numpos) {
+    Account a = getAccount('default account ltd', false);
+    uow.registerNew(a);
+
+    for (Integer i = 0; i < numpos; i++) {
+      Private_Object__c po = new Private_Object__c(
+        Name = 'Private Object ' + i,
+        Notes__c = 'Private Object ' + i
+      );
+      uow.registerNew(po, Private_Object__c.Account__c, a);
+    }
+
+    uow.commitWork();
+  }
+
+  /**
+   * @description Generates Opportunity for a specified Account using parameters.
+   * @param params A map containing parameters for the Opportunity:
+   *               - account: The Account to associate with.
+   *               - name: The name of the Opportunity.
+   *               - closeDate: The close date of the Opportunity.
+   *               - stageName: The stage name of the Opportunity.
+   *               - doInsert: Whether to insert the Opportunity into the database.
+   * @return An array of created Opportunity.
+   */
+  public static Opportunity getOpportunity(Map<String, Object> params) {
+    fflib_SObjectUnitOfWork uowOpp = new fflib_SObjectUnitOfWork(
+      new List<Schema.SObjectType>{ Opportunity.SObjectType }
+    );
+    Account acc = (Account) params.get('account');
+    String name = (String) params.get('name');
+    Date closeDate = (Date) params.get('closeDate');
+    String stageName = (String) params.get('stageName');
+    Boolean doInsert = (Boolean) params.get('doInsert');
+
+    Opportunity opp = new Opportunity(
+      name = name,
+      closeDate = closeDate,
+      stageName = stageName
+    );
+    if (doInsert) {
+      uowOpp.registerRelationship(opp, Opportunity.AccountId, acc);
+      uowOpp.registerNew(opp);
+      uowOpp.commitWork();
+    }
+    return opp;
+  }
+
+  /**
+   * @description Generates a Private_Object__c associated with the specified Account.
+   * @param params A map containing parameters for the Private_Object__c:
+   *               - account: The Account to associate with.
+   *               - notes: The notes for the Private_Object__c.
+   *               - doInsert: Whether to insert the Private_Object__c into the database.
+   * @return The created Private_Object__c.
+   */
+  public static Private_Object__c getPrivateObject(Map<String, Object> params) {
+    fflib_SObjectUnitOfWork uowPrivateObject = new fflib_SObjectUnitOfWork(
+      new List<Schema.SObjectType>{ Private_Object__c.SObjectType }
+    );
+    Account acc = (Account) params.get('account');
+    String notes = (String) params.get('notes');
+    Boolean doInsert = (Boolean) params.get('doInsert');
+
+    Private_Object__c po = new Private_Object__c(Notes__c = notes);
+    if (doInsert) {
+      uowPrivateObject.registerRelationship(
+        po,
+        Private_Object__c.Account__c,
+        acc
+      );
+      uowPrivateObject.registerNew(po);
+      uowPrivateObject.commitWork();
+    }
+    return po;
   }
 
   /**
