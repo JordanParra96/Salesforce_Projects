@@ -45,4 +45,17 @@ public with sharing class Accounts extends fflib_SObjectDomain {
         .getLevenshteinDistance('Domain classes rock!');
     }
   }
+
+  /**
+   * @description Factory method to prevent deletion of accounts with related opportunities.
+   */
+  public override void onBeforeDelete() {
+    List<Account> accountsWithOpportunities = new AccountsSelector()
+      .selectByIdWithOpportunities(Trigger.oldMap.keySet());
+    for (Account account : accountsWithOpportunities) {
+      Trigger.oldMap
+        .get(account.Id)
+        .addError('Cannot delete account with related opportunities.');
+    }
+  }
 }

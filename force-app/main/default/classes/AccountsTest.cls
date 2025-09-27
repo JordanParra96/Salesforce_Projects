@@ -97,4 +97,34 @@ private class AccountsTest {
       'AnnualRevenue for Test 4 should match the Levenshtein distance'
     );
   }
+
+  /**
+   * @description Test method for Accounts domain class before delete.
+   */
+  @isTest
+  static void onBeforeDelete() {
+    // GIVEN
+    Account acct = TestFactory.getAccount('ACME', true);
+    Map<String, Object> params = new Map<String, Object>{
+      'name' => 'Big Deal',
+      'stageName' => 'Prospecting',
+      'closeDate' => Date.today().addDays(30),
+      'account' => acct,
+      'doInsert' => true
+    };
+    Opportunity opp = TestFactory.getOpportunity(params);
+
+    // WHEN
+    Test.startTest();
+    Database.DeleteResult result = Database.delete(acct, false);
+    Test.stopTest();
+
+    // THEN
+    Assert.isFalse(result.isSuccess());
+    Assert.isTrue(result.getErrors().size() > 0);
+    Assert.areEqual(
+      'Cannot delete account with related opportunities.',
+      result.getErrors()[0].getMessage()
+    );
+  }
 }
