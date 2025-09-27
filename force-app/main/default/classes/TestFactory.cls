@@ -11,7 +11,8 @@ public class TestFactory {
       Contact.SObjectType,
       House__c.SObjectType,
       User.SObjectType,
-      Case.SObjectType
+      Case.SObjectType,
+      Private_Object__c.SObjectType
     }
   );
   /**
@@ -150,6 +151,25 @@ public class TestFactory {
       opps.add(o);
     }
     return opps;
+  }
+
+  /**
+   * @description Generates an Account with a specified number of Private_Object__c records.
+   * @param numpos The number of Private_Object__c records to create for the Account
+   */
+  public static void generateAccountWithPrivateObjects(Integer numpos) {
+    Account a = getAccount('default account ltd', false);
+    uow.registerNew(a);
+
+    for (Integer i = 0; i < numpos; i++) {
+      Private_Object__c po = new Private_Object__c(
+        Name = 'Private Object ' + i,
+        Notes__c = 'Private Object ' + i
+      );
+      uow.registerNew(po, Private_Object__c.Account__c, a);
+    }
+
+    uow.commitWork();
   }
 
   /**

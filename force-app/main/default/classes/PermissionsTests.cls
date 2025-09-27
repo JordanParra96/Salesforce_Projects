@@ -27,18 +27,20 @@ private class PermissionsTests {
     User u = TestFactory.generateUser('Standard User', true);
     System.runAs(u) {
       // WHEN
-      Test.startTest();
-      Private_Object__c[] pos = [
-        SELECT Id, Account__c, Notes__c
-        FROM Private_Object__c
-      ];
-      Test.stopTest();
-      // THEN
-      Assert.areEqual(
-        0,
-        pos.size(),
-        'A user without the permission set shouldn\'t see any records'
-      );
+      try {
+        Test.startTest();
+        Private_Object__c[] pos = new PrivateObjectSelector().selectAll();
+        Test.stopTest();
+        Assert.fail(
+          'User without permission set should not access Private_Object__c records'
+        );
+      } catch (Exception e) {
+        // THEN
+        System.assert(
+          e.getMessage()
+            .contains('Permission to access an Private_Object__c denied')
+        );
+      }
     }
   }
 
@@ -63,10 +65,7 @@ private class PermissionsTests {
     System.runAs(u) {
       // WHEN
       Test.startTest();
-      Private_Object__c[] pos = [
-        SELECT Id, Account__c, Notes__c
-        FROM Private_Object__c
-      ];
+      Private_Object__c[] pos = new PrivateObjectSelector().selectAll();
       Test.stopTest();
       // THEN
       Assert.areEqual(
