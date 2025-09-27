@@ -47,6 +47,22 @@ public with sharing class AccountsSelector extends fflib_SObjectSelector {
   }
 
   /**
+   * @description Selects Account records that have related Opportunities.
+   * @param idSet - Set of Account IDs to filter by.
+   * @return List<Account> - List of Account records with related Opportunities.
+   */
+  public List<Account> selectByIdWithOpportunities(Set<Id> idSet) {
+    return (List<Account>) Database.query(
+      newQueryFactory()
+        .setCondition(
+          'Id IN (SELECT AccountId FROM Opportunity) AND Id IN :idSet'
+        )
+        .setLimit(50000)
+        .toSOQL()
+    );
+  }
+
+  /**
    * @description Selects all Account records without any limit.
    * @return List<Account> - List of all Account records.
    */
