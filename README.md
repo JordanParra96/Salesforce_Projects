@@ -21,6 +21,8 @@ this repository contains the metadata of all the projects made for trailhead, th
 
 - [Create an External Client App Using Metadata API](https://trailhead.salesforce.com/content/learn/projects/create-an-external-client-app-using-metadata-api)
 
+- [Use Apex to Automate Business Processes](https://trailhead.salesforce.com/content/learn/projects/use-apex-to-automate-business-processes)
+
 ## Modules
 
 - [Apex Enterprise Patterns: Service Layer](https://trailhead.salesforce.com/content/learn/modules/apex_patterns_sl)
