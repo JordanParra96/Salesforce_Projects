@@ -8,7 +8,6 @@ private class OrderItemUtilityTest {
    */
   @IsTest
   static void onBeforeUpdate() {
-    // Create test data
     Account testAccount = new Account(Name = 'Test Account');
     insert testAccount;
 
@@ -26,7 +25,6 @@ private class OrderItemUtilityTest {
 
     String prID2 = Test.getStandardPricebookId();
 
-    // Insert Standard PricebookEntry (required by Salesforce)
     PricebookEntry standardPbe = new PricebookEntry(
       Pricebook2Id = prID2,
       Product2Id = testProduct.Id,
@@ -43,14 +41,12 @@ private class OrderItemUtilityTest {
     );
     insert testOrder;
 
-    // Update order status to 'Activated' to trigger the addition of bonus bouquet
     testOrder.Status = 'Activated';
 
     Test.startTest();
     update testOrder;
     Test.stopTest();
 
-    // Verify that the bonus bouquet was added
     List<OrderItem> orderItems = [
       SELECT Id, OrderId, PricebookEntryId, Description, UnitPrice
       FROM OrderItem
