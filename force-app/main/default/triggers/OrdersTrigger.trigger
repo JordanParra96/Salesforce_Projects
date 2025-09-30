@@ -1,3 +1,3 @@
-trigger orderTrigger on Order(before update) {
+trigger OrdersTrigger on Order(before update) {
   OrderItemUtility.addBonusBouquet(Trigger.new);
 }
