@@ -17,7 +17,8 @@ public class TestFactory {
       Opportunity.SObjectType,
       Pricebook2.SObjectType,
       PricebookEntry.SObjectType,
-      Order.SObjectType
+      Order.SObjectType,
+      OrderItem.SObjectType
     }
   );
   /**
@@ -438,6 +439,71 @@ public class TestFactory {
   }
 
   /**
+   * @description Generates a specified number of OrderItem records associated with an Order and Product2.
+   * @param numOrderItems The number of OrderItem records to create.
+   * @param doInsert Whether to insert the OrderItem records into the database.
+   * @return An array of created OrderItem records.
+   */
+  public static OrderItem[] generateOrderItems(
+    Integer numOrderItems,
+    Boolean doInsert
+  ) {
+    clearData();
+    Account accTest = getAccount('default account ltd', true);
+    Order orderTest = getOrder(
+      new Map<String, Object>{
+        'account' => accTest,
+        'effectiveDate' => Date.today(),
+        'status' => 'Draft',
+        'pbId' => Test.getStandardPricebookId(),
+        'doInsert' => true
+      }
+    );
+
+    Product2 prdTest = generateSpecificProducts(
+      new List<String>{ 'BOT-BB-12' },
+      true
+    )[0];
+
+    String prID2 = Test.getStandardPricebookId();
+
+    PricebookEntry pbe = getPriceBookEntry(
+      new Map<String, Object>{
+        'pbId' => prID2,
+        'product' => prdTest,
+        'unitPrice' => 100.00,
+        'isActive' => true,
+        'doInsert' => true
+      }
+    );
+    clearData();
+
+    List<OrderItem> orderItems = new List<OrderItem>();
+
+    for (Integer i = 0; i < numOrderItems; i++) {
+      OrderItem oItem = new OrderItem(
+        numberOfFlowers__c = 5,
+        Description = 'FREE Bouquet',
+        Quantity = 1,
+        colorTheme__c = 'Spectacular Sunset',
+        percentOfOpening__c = 0,
+        UnitPrice = 0.00
+      );
+      orderItems.add(oItem);
+
+      if (doInsert) {
+        uow.registerRelationship(oItem, OrderItem.OrderId, orderTest);
+        uow.registerRelationship(oItem, OrderItem.PricebookEntryId, pbe);
+      }
+    }
+    if (doInsert) {
+      uow.registerNew(orderItems);
+      uow.commitWork();
+    }
+    return orderItems;
+  }
+
+  /**
    * @description Clears the test data by reinitializing the Unit of Work.
    */
   public static void clearData() {
@@ -453,7 +519,8 @@ public class TestFactory {
         Opportunity.SObjectType,
         Pricebook2.SObjectType,
         PricebookEntry.SObjectType,
-        Order.SObjectType
+        Order.SObjectType,
+        OrderItem.SObjectType
       }
     );
   }

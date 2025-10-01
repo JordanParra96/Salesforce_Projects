@@ -45,11 +45,8 @@ private class OrderItemUtilityTest {
     update testOrder;
     Test.stopTest();
 
-    List<OrderItem> orderItems = [
-      SELECT Id, OrderId, PricebookEntryId, Description, UnitPrice
-      FROM OrderItem
-      WHERE OrderId = :testOrder.Id
-    ];
+    List<OrderItem> orderItems = new OrderItemSelector()
+      .selectByOrderId(new Set<Id>{ testOrder.Id }, 10);
 
     System.assertEquals(
       1,
