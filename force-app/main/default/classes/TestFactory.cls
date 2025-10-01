@@ -13,7 +13,8 @@ public class TestFactory {
       User.SObjectType,
       Case.SObjectType,
       Private_Object__c.SObjectType,
-      Product2.SObjectType
+      Product2.SObjectType,
+      Opportunity.SObjectType
     }
   );
   /**
@@ -83,9 +84,7 @@ public class TestFactory {
    * @return The created Contact.
    */
   public static Contact getContact(Map<String, Object> params) {
-    fflib_SObjectUnitOfWork uowContact = new fflib_SObjectUnitOfWork(
-      new List<Schema.SObjectType>{ Contact.SObjectType }
-    );
+    clearData();
     Account acc = (Account) params.get('account');
     String firstName = (String) params.get('fname');
     String lastName = (String) params.get('lname');
@@ -93,9 +92,9 @@ public class TestFactory {
 
     Contact c = new Contact(FirstName = firstName, LastName = lastName);
     if (doInsert) {
-      uowContact.registerRelationship(c, Contact.AccountId, acc);
-      uowContact.registerNew(c);
-      uowContact.commitWork();
+      uow.registerRelationship(c, Contact.AccountId, acc);
+      uow.registerNew(c);
+      uow.commitWork();
     }
     return c;
   }
@@ -105,9 +104,7 @@ public class TestFactory {
    * @param numContacts The number of Contacts to create for the Account.
    */
   public static void generateAccountWithContacts(Integer numContacts) {
-    fflib_SObjectUnitOfWork uowContact = new fflib_SObjectUnitOfWork(
-      new List<Schema.SObjectType>{ Contact.SObjectType }
-    );
+    clearData();
     Account a = getAccount('default account ltd', true);
     List<Contact> contacts = new List<Contact>();
     for (Integer i = 0; i < numContacts; i++) {
@@ -118,15 +115,11 @@ public class TestFactory {
         'lname' => contactName,
         'doInsert' => false
       };
-      uowContact.registerRelationship(
-        getContact(contactParams),
-        Contact.AccountId,
-        a
-      );
+      uow.registerRelationship(getContact(contactParams), Contact.AccountId, a);
       contacts.add(getContact(contactParams));
     }
-    uowContact.registerNew(contacts);
-    uowContact.commitWork();
+    uow.registerNew(contacts);
+    uow.commitWork();
   }
 
   /**
@@ -184,9 +177,7 @@ public class TestFactory {
    * @return An array of created Opportunity.
    */
   public static Opportunity getOpportunity(Map<String, Object> params) {
-    fflib_SObjectUnitOfWork uowOpp = new fflib_SObjectUnitOfWork(
-      new List<Schema.SObjectType>{ Opportunity.SObjectType }
-    );
+    clearData();
     Account acc = (Account) params.get('account');
     String name = (String) params.get('name');
     Date closeDate = (Date) params.get('closeDate');
@@ -199,9 +190,9 @@ public class TestFactory {
       stageName = stageName
     );
     if (doInsert) {
-      uowOpp.registerRelationship(opp, Opportunity.AccountId, acc);
-      uowOpp.registerNew(opp);
-      uowOpp.commitWork();
+      uow.registerRelationship(opp, Opportunity.AccountId, acc);
+      uow.registerNew(opp);
+      uow.commitWork();
     }
     return opp;
   }
@@ -215,22 +206,16 @@ public class TestFactory {
    * @return The created Private_Object__c.
    */
   public static Private_Object__c getPrivateObject(Map<String, Object> params) {
-    fflib_SObjectUnitOfWork uowPrivateObject = new fflib_SObjectUnitOfWork(
-      new List<Schema.SObjectType>{ Private_Object__c.SObjectType }
-    );
+    clearData();
     Account acc = (Account) params.get('account');
     String notes = (String) params.get('notes');
     Boolean doInsert = (Boolean) params.get('doInsert');
 
     Private_Object__c po = new Private_Object__c(Notes__c = notes);
     if (doInsert) {
-      uowPrivateObject.registerRelationship(
-        po,
-        Private_Object__c.Account__c,
-        acc
-      );
-      uowPrivateObject.registerNew(po);
-      uowPrivateObject.commitWork();
+      uow.registerRelationship(po, Private_Object__c.Account__c, acc);
+      uow.registerNew(po);
+      uow.commitWork();
     }
     return po;
   }
@@ -347,9 +332,7 @@ public class TestFactory {
     List<String> productCodes,
     Boolean doInsert
   ) {
-    fflib_SObjectUnitOfWork uowProduct = new fflib_SObjectUnitOfWork(
-      new List<Schema.SObjectType>{ Product2.SObjectType }
-    );
+    clearData();
     List<Product2> products = new List<Product2>();
     for (String code : productCodes) {
       products.add(
@@ -361,9 +344,27 @@ public class TestFactory {
       );
     }
     if (doInsert) {
-      uowProduct.registerNew(products);
-      uowProduct.commitWork();
+      uow.registerNew(products);
+      uow.commitWork();
     }
     return products;
+  }
+
+  /**
+   * @description Clears the test data by reinitializing the Unit of Work.
+   */
+  public static void clearData() {
+    uow = new fflib_SObjectUnitOfWork(
+      new List<Schema.SObjectType>{
+        Account.SObjectType,
+        Contact.SObjectType,
+        House__c.SObjectType,
+        User.SObjectType,
+        Case.SObjectType,
+        Private_Object__c.SObjectType,
+        Product2.SObjectType,
+        Opportunity.SObjectType
+      }
+    );
   }
 }
