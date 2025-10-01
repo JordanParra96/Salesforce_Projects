@@ -14,7 +14,8 @@ public class TestFactory {
       Case.SObjectType,
       Private_Object__c.SObjectType,
       Product2.SObjectType,
-      Opportunity.SObjectType
+      Opportunity.SObjectType,
+      Pricebook2.SObjectType
     }
   );
   /**
@@ -351,6 +352,28 @@ public class TestFactory {
   }
 
   /**
+   * @description Generates a specified number of Pricebook2 records.
+   * @param numPricebooks The number of Pricebook2 records to create.
+   * @param doInsert Whether to insert the Pricebook2 records into the database.
+   * @return An array of created Pricebook2 records.
+   */
+  public static Pricebook2[] generatePricebooks(
+    Integer numPricebooks,
+    Boolean doInsert
+  ) {
+    clearData();
+    List<Pricebook2> pricebooks = new List<Pricebook2>();
+    for (Integer i = 0; i < numPricebooks; i++) {
+      pricebooks.add(new Pricebook2(Name = 'Pricebook ' + i, IsActive = true));
+    }
+    if (doInsert) {
+      uow.registerNew(pricebooks);
+      uow.commitWork();
+    }
+    return pricebooks;
+  }
+
+  /**
    * @description Clears the test data by reinitializing the Unit of Work.
    */
   public static void clearData() {
@@ -363,7 +386,8 @@ public class TestFactory {
         Case.SObjectType,
         Private_Object__c.SObjectType,
         Product2.SObjectType,
-        Opportunity.SObjectType
+        Opportunity.SObjectType,
+        Pricebook2.SObjectType
       }
     );
   }

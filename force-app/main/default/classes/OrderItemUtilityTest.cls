@@ -15,10 +15,7 @@ private class OrderItemUtilityTest {
       true
     )[0];
 
-    Pricebook2 pr = new Pricebook2();
-    pr.Name = 'Jhon';
-    pr.IsActive = true;
-    insert pr;
+    Pricebook2 pr = TestFactory.generatePricebooks(1, true)[0];
 
     String prID2 = Test.getStandardPricebookId();
 
