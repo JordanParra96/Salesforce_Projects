@@ -15,6 +15,7 @@ public class TestAccountFactory {
     Boolean doInsert,
     fflib_SObjectUnitOfWork uow
   ) {
+    TestFactory.clearData();
     Account a = new Account(name = name);
     if (doInsert) {
       uow.registerNew(a);
