@@ -7,12 +7,8 @@ public with sharing class OrderItemUtility {
    * @param ordersFromTrigger List of Order records from the trigger context.
    */
   public static void addBonusBouquet(List<Order> ordersFromTrigger) {
-    List<Product2> bonusProductList = [
-      SELECT Id, ProductCode
-      FROM Product2
-      WHERE ProductCode = 'BOT-BB-12'
-      WITH USER_MODE
-    ];
+    List<Product2> bonusProductList = new ProductSelector()
+      .selectByProductCode(new Set<String>{ 'BOT-BB-12' }, 1);
 
     Product2 bonusProduct = new Product2();
 

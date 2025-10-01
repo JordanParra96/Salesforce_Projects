@@ -8,38 +8,36 @@ private class OrderItemUtilityTest {
    */
   @IsTest
   static void onBeforeUpdate() {
-    Account testAccount = new Account(Name = 'Test Account');
-    insert testAccount;
+    Account testAccount = TestFactory.getAccount('Test Account', true);
 
-    Product2 testProduct = new Product2(
-      Name = 'Test Product',
-      ProductCode = 'BOT-BB-12',
-      IsActive = true
-    );
-    insert testProduct;
+    Product2 testProduct = TestFactory.generateSpecificProducts(
+      new List<String>{ 'BOT-BB-12' },
+      true
+    )[0];
 
-    Pricebook2 pr = new Pricebook2();
-    pr.Name = 'Jhon';
-    pr.IsActive = true;
-    insert pr;
+    Pricebook2 pr = TestFactory.generatePricebooks(1, true)[0];
 
     String prID2 = Test.getStandardPricebookId();
 
-    PricebookEntry standardPbe = new PricebookEntry(
-      Pricebook2Id = prID2,
-      Product2Id = testProduct.Id,
-      UnitPrice = 100.00,
-      IsActive = true
-    );
-    insert standardPbe;
+    Map<String, Object> pbParams = new Map<String, Object>{
+      'pbId' => prID2,
+      'product' => testProduct,
+      'unitPrice' => 100.00,
+      'isActive' => true,
+      'doInsert' => true
+    };
 
-    Order testOrder = new Order(
-      AccountId = testAccount.Id,
-      EffectiveDate = Date.today(),
-      Status = 'Draft',
-      Pricebook2Id = prID2
-    );
-    insert testOrder;
+    PricebookEntry standardPbe = TestFactory.getPricebookEntry(pbParams);
+
+    Map<String, Object> orderParams = new Map<String, Object>{
+      'account' => testAccount,
+      'effectiveDate' => Date.today(),
+      'status' => 'Draft',
+      'pbId' => prID2,
+      'doInsert' => true
+    };
+
+    Order testOrder = TestFactory.getOrder(orderParams);
 
     testOrder.Status = 'Activated';
 
@@ -47,11 +45,8 @@ private class OrderItemUtilityTest {
     update testOrder;
     Test.stopTest();
 
-    List<OrderItem> orderItems = [
-      SELECT Id, OrderId, PricebookEntryId, Description, UnitPrice
-      FROM OrderItem
-      WHERE OrderId = :testOrder.Id
-    ];
+    List<OrderItem> orderItems = new OrderItemSelector()
+      .selectByOrderId(new Set<Id>{ testOrder.Id }, 10);
 
     System.assertEquals(
       1,
