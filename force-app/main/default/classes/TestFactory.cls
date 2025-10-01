@@ -12,7 +12,8 @@ public class TestFactory {
       House__c.SObjectType,
       User.SObjectType,
       Case.SObjectType,
-      Private_Object__c.SObjectType
+      Private_Object__c.SObjectType,
+      Product2.SObjectType
     }
   );
   /**
@@ -307,5 +308,62 @@ public class TestFactory {
       uow.commitWork();
     }
     return cases;
+  }
+
+  /**
+   * @description Generates a specified number of Product2 records.
+   * @param numProducts The number of Product2 records to create.
+   * @param doInsert Whether to insert the Product2 records into the database.
+   * @return An array of created Product2 records.
+   */
+  public static Product2[] generateProducts(
+    Integer numProducts,
+    Boolean doInsert
+  ) {
+    List<Product2> products = new List<Product2>();
+    for (Integer i = 0; i < numProducts; i++) {
+      products.add(
+        new Product2(
+          Name = 'Product ' + i,
+          ProductCode = 'PCode' + i,
+          IsActive = true
+        )
+      );
+    }
+    if (doInsert) {
+      uow.registerNew(products);
+      uow.commitWork();
+    }
+    return products;
+  }
+
+  /**
+   * @description Generates Product2 records with specified product codes.
+   * @param productCodes A list of product codes for the Product2 records to create.
+   * @param doInsert Whether to insert the Product2 records into the database.
+   * @return An array of created Product2 records.
+   */
+  public static Product2[] generateSpecificProducts(
+    List<String> productCodes,
+    Boolean doInsert
+  ) {
+    fflib_SObjectUnitOfWork uowProduct = new fflib_SObjectUnitOfWork(
+      new List<Schema.SObjectType>{ Product2.SObjectType }
+    );
+    List<Product2> products = new List<Product2>();
+    for (String code : productCodes) {
+      products.add(
+        new Product2(
+          Name = 'Product ' + code,
+          ProductCode = code,
+          IsActive = true
+        )
+      );
+    }
+    if (doInsert) {
+      uowProduct.registerNew(products);
+      uowProduct.commitWork();
+    }
+    return products;
   }
 }

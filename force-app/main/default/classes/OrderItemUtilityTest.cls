@@ -8,15 +8,12 @@ private class OrderItemUtilityTest {
    */
   @IsTest
   static void onBeforeUpdate() {
-    Account testAccount = new Account(Name = 'Test Account');
-    insert testAccount;
+    Account testAccount = TestFactory.getAccount('Test Account', true);
 
-    Product2 testProduct = new Product2(
-      Name = 'Test Product',
-      ProductCode = 'BOT-BB-12',
-      IsActive = true
-    );
-    insert testProduct;
+    Product2 testProduct = TestFactory.generateSpecificProducts(
+      new List<String>{ 'BOT-BB-12' },
+      true
+    )[0];
 
     Pricebook2 pr = new Pricebook2();
     pr.Name = 'Jhon';
