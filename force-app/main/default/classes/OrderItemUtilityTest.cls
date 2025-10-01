@@ -19,21 +19,25 @@ private class OrderItemUtilityTest {
 
     String prID2 = Test.getStandardPricebookId();
 
-    PricebookEntry standardPbe = new PricebookEntry(
-      Pricebook2Id = prID2,
-      Product2Id = testProduct.Id,
-      UnitPrice = 100.00,
-      IsActive = true
-    );
-    insert standardPbe;
+    Map<String, Object> pbParams = new Map<String, Object>{
+      'pbId' => prID2,
+      'product' => testProduct,
+      'unitPrice' => 100.00,
+      'isActive' => true,
+      'doInsert' => true
+    };
 
-    Order testOrder = new Order(
-      AccountId = testAccount.Id,
-      EffectiveDate = Date.today(),
-      Status = 'Draft',
-      Pricebook2Id = prID2
-    );
-    insert testOrder;
+    PricebookEntry standardPbe = TestFactory.getPricebookEntry(pbParams);
+
+    Map<String, Object> orderParams = new Map<String, Object>{
+      'account' => testAccount,
+      'effectiveDate' => Date.today(),
+      'status' => 'Draft',
+      'pbId' => prID2,
+      'doInsert' => true
+    };
+
+    Order testOrder = TestFactory.getOrder(orderParams);
 
     testOrder.Status = 'Activated';
 

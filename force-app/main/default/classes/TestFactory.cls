@@ -15,7 +15,9 @@ public class TestFactory {
       Private_Object__c.SObjectType,
       Product2.SObjectType,
       Opportunity.SObjectType,
-      Pricebook2.SObjectType
+      Pricebook2.SObjectType,
+      PricebookEntry.SObjectType,
+      Order.SObjectType
     }
   );
   /**
@@ -196,6 +198,68 @@ public class TestFactory {
       uow.commitWork();
     }
     return opp;
+  }
+
+  /**
+   * @description Generates a PricebookEntry associated with the specified Product2 and Pricebook2.
+   * @param params A map containing parameters for the PricebookEntry:
+   *               - pbId: The Id of the Pricebook2 to associate with.
+   *               - product: The Product2 to associate with.
+   *               - unitPrice: The unit price for the PricebookEntry.
+   *               - isActive: Whether the PricebookEntry is active.
+   *               - doInsert: Whether to insert the PricebookEntry into the database.
+   * @return The created PricebookEntry.
+   */
+  public static PricebookEntry getPriceBookEntry(Map<String, Object> params) {
+    clearData();
+    String pbId = (String) params.get('pbId');
+    Product2 p = (Product2) params.get('product');
+    Decimal unitPrice = (Decimal) params.get('unitPrice');
+    Boolean isActive = (Boolean) params.get('isActive');
+    Boolean doInsert = (Boolean) params.get('doInsert');
+
+    PricebookEntry pbe = new PricebookEntry(
+      Pricebook2Id = pbId,
+      UnitPrice = unitPrice,
+      IsActive = true
+    );
+    if (doInsert) {
+      uow.registerRelationship(pbe, PricebookEntry.Product2Id, p);
+      uow.registerNew(pbe);
+      uow.commitWork();
+    }
+    return pbe;
+  }
+
+  /**
+   * @description Generates an Order associated with the specified Account.
+   * @param params A map containing parameters for the Order:
+   *               - account: The Account to associate with.
+   *               - effectiveDate: The effective date of the Order.
+   *               - status: The status of the Order.
+   *               - pbId: The Id of the Pricebook2 to associate with.
+   *               - doInsert: Whether to insert the Order into the database.
+   * @return The created Order.
+   */
+  public static Order getOrder(Map<String, Object> params) {
+    clearData();
+    Account acc = (Account) params.get('account');
+    Date effectiveDate = (Date) params.get('effectiveDate');
+    String status = (String) params.get('status');
+    String pbId = (String) params.get('pbId');
+    Boolean doInsert = (Boolean) params.get('doInsert');
+
+    Order o = new Order(
+      EffectiveDate = effectiveDate,
+      Status = status,
+      Pricebook2Id = pbId
+    );
+    if (doInsert) {
+      uow.registerRelationship(o, Order.AccountId, acc);
+      uow.registerNew(o);
+      uow.commitWork();
+    }
+    return o;
   }
 
   /**
@@ -387,7 +451,9 @@ public class TestFactory {
         Private_Object__c.SObjectType,
         Product2.SObjectType,
         Opportunity.SObjectType,
-        Pricebook2.SObjectType
+        Pricebook2.SObjectType,
+        PricebookEntry.SObjectType,
+        Order.SObjectType
       }
     );
   }
