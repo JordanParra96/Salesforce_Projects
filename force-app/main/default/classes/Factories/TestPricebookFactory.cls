@@ -59,4 +59,66 @@ public class TestPricebookFactory {
     }
     return pricebooks;
   }
+
+  /**
+   * @description Generates PricebookEntry records for each combination of the provided Pricebook2 and Product2 records.
+   * @param pbeWrapper A PricebookEntryWrapper containing lists of Pricebook2 and Product2 records, and the unit price.
+   * @param doInsert Whether to insert the PricebookEntry records into the database.
+   * @param uow The unit of work to use for inserting the PricebookEntry records.
+   * @return An array of created PricebookEntry records.
+   */
+  public static PricebookEntry[] generatePricebookEntries(
+    PricebookEntryWrapper pbeWrapper,
+    Boolean doInsert,
+    fflib_SObjectUnitOfWork uow
+  ) {
+    TestFactory.clearData();
+    List<PricebookEntry> pricebookEntries = new List<PricebookEntry>();
+    for (Pricebook2 pb : pbeWrapper.pbs) {
+      for (Product2 p : pbeWrapper.products) {
+        PricebookEntry pbe = new PricebookEntry(
+          Pricebook2Id = pb.Id,
+          Product2Id = p.Id,
+          UnitPrice = pbeWrapper.unitPrice,
+          IsActive = true
+        );
+        pricebookEntries.add(pbe);
+        if (doInsert) {
+          uow.registerNew(pbe);
+        }
+      }
+    }
+    if (doInsert) {
+      uow.commitWork();
+    }
+    return pricebookEntries;
+  }
+
+  /**
+   * @description A wrapper class to hold a PricebookEntry and its associated Product2.
+   */
+  public class PricebookEntryWrapper {
+    /** @description List of PricebookEntry records */
+    public List<Pricebook2> pbs { get; set; }
+    /** @description List of associated Product2 records */
+    public List<Product2> products { get; set; }
+    /** @description The unit price for the PricebookEntry */
+    Decimal unitPrice { get; set; }
+
+    /**
+     * @description Constructor to initialize the PricebookEntryWrapper with provided PricebookEntry, Product2, and unit price.
+     * @param pbs The list of Pricebook2 records.
+     * @param products The list of associated Product2 records.
+     * @param unitPrice The unit price for the PricebookEntry.
+     */
+    public PricebookEntryWrapper(
+      Pricebook2[] pbs,
+      Product2[] products,
+      Decimal unitPrice
+    ) {
+      this.pbs = pbs;
+      this.products = products;
+      this.unitPrice = unitPrice;
+    }
+  }
 }

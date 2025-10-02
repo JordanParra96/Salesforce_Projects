@@ -7,6 +7,10 @@ public with sharing class OrderItemUtility {
    * @param ordersFromTrigger List of Order records from the trigger context.
    */
   public static void addBonusBouquet(List<Order> ordersFromTrigger) {
+    fflib_SObjectUnitOfWork uow = new fflib_SObjectUnitOfWork(
+      new List<Schema.SObjectType>{ OrderItem.SObjectType }
+    );
+
     List<Product2> bonusProductList = new ProductSelector()
       .selectByProductCode(new Set<String>{ 'BOT-BB-12' }, 1);
 
@@ -14,12 +18,8 @@ public with sharing class OrderItemUtility {
 
     if (bonusProductList.size() > 0) {
       bonusProduct = bonusProductList[0];
-      List<PricebookEntry> entryList = [
-        SELECT Id, Product2Id
-        FROM PricebookEntry
-        WHERE Product2Id = :bonusProduct.Id
-        WITH USER_MODE
-      ];
+      List<PricebookEntry> entryList = new PricebookEntrySelector()
+        .selectByProductId(new Set<Id>{ bonusProduct.Id }, 1);
       PricebookEntry entry = new PricebookEntry();
 
       if (entryList.size() > 0) {
@@ -41,10 +41,11 @@ public with sharing class OrderItemUtility {
             UnitPrice = 0.00
           );
           newBouquets.add(freeBouquet);
+          uow.registerNew(freeBouquet);
         }
       }
 
-      insert as user newBouquets;
+      uow.commitWork();
     }
   }
 }
