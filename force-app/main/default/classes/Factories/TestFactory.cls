@@ -137,6 +137,23 @@ public class TestFactory {
   }
 
   /**
+   * @description Generates PricebookEntry records using a wrapper class.
+   * @param pbeWrapper A PricebookEntryWrapper containing lists of Pricebook2 and Product2 records, and unit price.
+   * @param doInsert Whether to insert the PricebookEntry records into the database.
+   * @return An array of created PricebookEntry records.
+   */
+  public static PricebookEntry[] generatePricebookEntries(
+    TestPricebookFactory.PricebookEntryWrapper pbeWrapper,
+    Boolean doInsert
+  ) {
+    return TestPricebookFactory.generatePricebookEntries(
+      pbeWrapper,
+      doInsert,
+      uow
+    );
+  }
+
+  /**
    * @description Generates an Order associated with the specified Account.
    * @param params A map containing parameters for the Order:
    *               - account: The Account to associate with.
