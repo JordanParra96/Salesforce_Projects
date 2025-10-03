@@ -1,25 +1,46 @@
+/*
+ * @description Test class for OpportunityChanges trigger handler.
+ */
 @isTest
 public class OpportunityChangesTest {
+  /**
+   * @description Test method for creating and updating an Opportunity record.
+   */
   @isTest
   static void testCreateAndUpdateOpportunity() {
+    fflib_SObjectUnitOfWork uow = new fflib_SObjectUnitOfWork(
+      new List<Schema.SObjectType>{ Opportunity.SObjectType }
+    );
     Test.enableChangeDataCapture();
 
-    insert new Opportunity(
-      Name = 'Sell 100 Widgets',
-      StageName = 'Prospecting',
-      CloseDate = Date.today().addMonths(3)
+    List<Account> accounts = TestFactory.generateAccountsWithNames(
+      new List<String>{
+        'ACME',
+        'Test Account',
+        'Module Account',
+        'Negative Account'
+      },
+      true
     );
+
+    List<Opportunity> opps = TestFactory.generateOppsForAccount(
+      accounts[0].id,
+      1000.00,
+      5
+    );
+    uow.registerNew(opps);
+    uow.commitWork();
 
     Test.getEventBus().deliver();
 
-    Opportunity[] oppRecords = [SELECT Id, StageName FROM Opportunity];
+    Opportunity[] oppRecords = new OpportunitiesSelector().selectAll();
     Opportunity opp = oppRecords[0];
     opp.StageName = 'Closed Won';
     update opp;
 
     Test.getEventBus().deliver();
 
-    Task[] taskList = [SELECT Id, Subject FROM Task];
+    Task[] taskList = new TaskSelector().selectAll();
     System.assertEquals(
       1,
       taskList.size(),

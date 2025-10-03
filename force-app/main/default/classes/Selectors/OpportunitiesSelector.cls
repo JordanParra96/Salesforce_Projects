@@ -9,7 +9,8 @@ public with sharing class OpportunitiesSelector extends fflib_SObjectSelector {
   public List<Schema.SObjectField> getSObjectFieldList() {
     return new List<Schema.SObjectField>{
       Opportunity.Amount,
-      Opportunity.AccountId
+      Opportunity.AccountId,
+      Opportunity.StageName
     };
   }
 
