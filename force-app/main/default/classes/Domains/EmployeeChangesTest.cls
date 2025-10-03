@@ -10,26 +10,18 @@ public class EmployeeChangesTest {
   static void testCreateAndUpdateEmployee() {
     Test.enableChangeDataCapture();
 
-    insert new Employee__c(
-      Name = 'e-101',
-      First_Name__c = 'Astro',
-      Last_Name__c = 'Test',
-      Tenure__c = 1
-    );
+    Employee__c[] empList = TestFactory.generateEmployees(1, true);
 
     Test.getEventBus().deliver();
 
-    Task[] taskList = [SELECT Id, Subject FROM Task];
+    Task[] taskList = new TaskSelector().selectAll();
     System.assertEquals(
       1,
       taskList.size(),
       'The change event trigger did not create the expected task.'
     );
 
-    Employee__c[] empRecords = [
-      SELECT Id, OwnerId, First_Name__c, Tenure__c
-      FROM Employee__c
-    ];
+    Employee__c[] empRecords = new EmployeeSelector().selectAll();
 
     Employee__c emp = empRecords[0];
     emp.First_Name__c = 'Codey';
@@ -38,7 +30,7 @@ public class EmployeeChangesTest {
 
     Test.getEventBus().deliver();
 
-    Task[] taskList2 = [SELECT Id, Subject FROM Task];
+    Task[] taskList2 = new TaskSelector().selectAll();
     System.assertEquals(
       2,
       taskList2.size(),
