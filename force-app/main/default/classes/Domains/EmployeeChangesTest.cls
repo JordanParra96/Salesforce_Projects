@@ -1,4 +1,4 @@
-/**
+/*
  * @description Test class for Employee Change Event trigger.
  */
 @isTest

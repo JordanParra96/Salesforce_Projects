@@ -10,21 +10,13 @@ private class OpportunitiesSelectorTest {
   static void makeData() {
     // Create a Unit Of Work
     fflib_SObjectUnitOfWork uow = new fflib_SObjectUnitOfWork(
-      new List<Schema.SObjectType>{
-        Account.SobjectType,
-        Opportunity.SObjectType
-      }
+      new List<Schema.SObjectType>{ Opportunity.SObjectType }
     );
 
-    Account a = new Account(Name = 'Test Account');
-    uow.registerNew(a);
-    for (Integer i = 0; i < 5; i++) {
-      Opportunity opp = new Opportunity();
-      opp.Name = 'Test Opportunity ' + i;
-      opp.CloseDate = Date.today().addDays(30);
-      opp.StageName = 'Prospecting';
-      uow.registerNew(opp, Opportunity.AccountId, a);
-    }
+    Account a = TestFactory.getAccount('Test Account', true);
+
+    Opportunity[] opps = TestFactory.generateOppsForAccount(a.Id, 1000, 5);
+    uow.registerNew(opps);
     uow.commitWork();
   }
 
@@ -53,10 +45,7 @@ private class OpportunitiesSelectorTest {
    */
   @isTest
   static void selectByName() {
-    Set<String> nameSet = new Set<String>{
-      'Test Opportunity 0',
-      'Test Opportunity 1'
-    };
+    Set<String> nameSet = new Set<String>{ 'Account 0', 'Account 1' };
     List<Opportunity> opps = new OpportunitiesSelector()
       .selectByName(nameSet, 10);
 

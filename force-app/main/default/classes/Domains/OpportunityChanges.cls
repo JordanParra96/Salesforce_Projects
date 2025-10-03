@@ -16,6 +16,9 @@ public with sharing class OpportunityChanges {
    * @description After insert trigger handler to process Opportunity Change Events.
    */
   public void handleAfterInsert() {
+    fflib_SObjectUnitOfWork uow = new fflib_SObjectUnitOfWork(
+      new List<Schema.SObjectType>{ Task.SObjectType }
+    );
     List<Task> tasks = new List<Task>();
 
     for (
@@ -27,11 +30,12 @@ public with sharing class OpportunityChanges {
         tk.Subject = 'Follow up on won opportunities: ' + header.recordIds;
         tk.OwnerId = header.CommitUser;
         tasks.add(tk);
+        uow.registerNew(tk);
       }
     }
 
     if (tasks.size() > 0) {
-      insert as user tasks;
+      uow.commitWork();
     }
   }
 }

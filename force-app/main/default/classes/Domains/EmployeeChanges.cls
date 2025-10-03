@@ -15,15 +15,19 @@ public with sharing class EmployeeChanges {
    * @description After insert trigger handler to process Employee Change Events.
    */
   public void handleAfterInsert() {
+    fflib_SObjectUnitOfWork uow = new fflib_SObjectUnitOfWork(
+      new List<Schema.SObjectType>{ Task.SObjectType }
+    );
     List<Task> tasks = new List<Task>();
     for (
       Employee__ChangeEvent emp : (List<Employee__ChangeEvent>) this.records
     ) {
       tasks.add(processEmployeeChangeEvent(emp));
+      uow.registerNew(processEmployeeChangeEvent(emp));
     }
 
     if (tasks.size() > 0) {
-      insert as user tasks;
+      uow.commitWork();
     }
   }
 

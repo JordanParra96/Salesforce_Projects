@@ -18,7 +18,8 @@ public class TestFactory {
       Pricebook2.SObjectType,
       PricebookEntry.SObjectType,
       Order.SObjectType,
-      OrderItem.SObjectType
+      OrderItem.SObjectType,
+      Task.SObjectType
     }
   );
 
@@ -96,6 +97,20 @@ public class TestFactory {
       amount,
       numOpps
     );
+  }
+
+  /**
+   * @description Generates Tasks for a specified Account.
+   * @param params A map containing parameters for the Tasks:
+   *               - accountId: The Id of the Account to associate with.
+   *               - subjectPrefix: The prefix for the Task subject.
+   *               - numTasks: The number of Tasks to create.
+   *               - doInsert: Whether to insert the Tasks into the database.
+   * @return An array of created Tasks.
+   */
+  public static Task[] generateTasksForAccount(Map<String, Object> params) {
+    params.put('uow', uow);
+    return TestTaskFactory.generateTasksForAccount(params);
   }
 
   /**
@@ -289,7 +304,8 @@ public class TestFactory {
         Pricebook2.SObjectType,
         PricebookEntry.SObjectType,
         Order.SObjectType,
-        OrderItem.SObjectType
+        OrderItem.SObjectType,
+        Task.SObjectType
       }
     );
   }
