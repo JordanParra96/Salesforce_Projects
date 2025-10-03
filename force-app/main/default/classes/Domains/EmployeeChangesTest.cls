@@ -2,7 +2,7 @@
  * @description Test class for Employee Change Event trigger.
  */
 @isTest
-public class TestEmployeeChangeTrigger {
+public class EmployeeChangesTest {
   /**
    * @description Test method for creating and updating an Employee record.
    */
