@@ -19,7 +19,8 @@ public class TestFactory {
       PricebookEntry.SObjectType,
       Order.SObjectType,
       OrderItem.SObjectType,
-      Task.SObjectType
+      Task.SObjectType,
+      Employee__c.SObjectType
     }
   );
 
@@ -288,6 +289,19 @@ public class TestFactory {
   }
 
   /**
+   * @description Generates a specified number of Employee__c records.
+   * @param numEmployees The number of Employee__c records to create.
+   * @param doInsert Whether to insert the Employee__c records into the database.
+   * @return An array of created Employee__c records.
+   */
+  public static Employee__c[] generateEmployees(
+    Integer numEmployees,
+    Boolean doInsert
+  ) {
+    return TestEmployeeFactory.generateEmployees(numEmployees, doInsert, uow);
+  }
+
+  /**
    * @description Clears the test data by reinitializing the Unit of Work.
    */
   public static void clearData() {
@@ -305,7 +319,8 @@ public class TestFactory {
         PricebookEntry.SObjectType,
         Order.SObjectType,
         OrderItem.SObjectType,
-        Task.SObjectType
+        Task.SObjectType,
+        Employee__c.SObjectType
       }
     );
   }
