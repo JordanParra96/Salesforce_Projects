@@ -34,3 +34,5 @@ this repository contains the metadata of all the projects made for trailhead, th
 - [Advanced Apex Testing](https://trailhead.salesforce.com/content/learn/modules/unit-testing-on-the-lightning-platform)
 
 - [Change Data Capture Basics](https://trailhead.salesforce.com/content/learn/modules/change-data-capture)
+
+- [Real-Time Event Monitoring](https://trailhead.salesforce.com/content/learn/modules/realtime-event-monitoring)
