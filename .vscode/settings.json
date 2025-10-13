@@ -6,5 +6,6 @@
   },
   "apexPMD.rulesets": [
     "ruleset.xml"
-  ]
+  ],
+  "xml.preferences.showSchemaDocumentationType": "none"
 }
