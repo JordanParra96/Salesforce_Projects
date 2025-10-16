@@ -1,9 +1,10 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <Flow xmlns="http://soap.sforce.com/2006/04/metadata">
     <apiVersion>65.0</apiVersion>
     <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
     <environments>Default</environments>
-    <interviewLabel>Update Cases When Contact Becomes Inactive {!$Flow.CurrentDateTime}</interviewLabel>
+    <interviewLabel
+  >Update Cases When Contact Becomes Inactive {!$Flow.CurrentDateTime}</interviewLabel>
     <label>Update Cases When Contact Becomes Inactive</label>
     <processMetadataValues>
         <name>BuilderType</name>
@@ -51,7 +52,8 @@
         <connector>
             <targetReference>Update_Case_Contacts</targetReference>
         </connector>
-        <doesRequireRecordChangedToMeetCriteria>true</doesRequireRecordChangedToMeetCriteria>
+        <doesRequireRecordChangedToMeetCriteria
+    >true</doesRequireRecordChangedToMeetCriteria>
         <filterLogic>and</filterLogic>
         <filters>
             <field>Active__c</field>
