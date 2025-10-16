@@ -36,3 +36,5 @@ this repository contains the metadata of all the projects made for trailhead, th
 - [Change Data Capture Basics](https://trailhead.salesforce.com/content/learn/modules/change-data-capture)
 
 - [Real-Time Event Monitoring](https://trailhead.salesforce.com/content/learn/modules/realtime-event-monitoring)
+
+- [JavaScript Developer Certification Maintenance (Summer '25)](https://trailhead.salesforce.com/content/learn/modules/javascript-developer-certification-maintenance-summer-25?trail_id=maintain-your-salesforce-certifications)
