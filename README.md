@@ -38,3 +38,5 @@ this repository contains the metadata of all the projects made for trailhead, th
 - [Real-Time Event Monitoring](https://trailhead.salesforce.com/content/learn/modules/realtime-event-monitoring)
 
 - [JavaScript Developer Certification Maintenance (Summer '25)](https://trailhead.salesforce.com/content/learn/modules/javascript-developer-certification-maintenance-summer-25?trail_id=maintain-your-salesforce-certifications)
+
+- [Multirecord Elements and Transforms in Flows](https://trailhead.salesforce.com/content/learn/modules/multirecord-elements-and-transforms-in-flows)
