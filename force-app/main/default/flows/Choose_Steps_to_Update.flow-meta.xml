@@ -1,23 +1,28 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<Flow xmlns="http://soap.sforce.com/2006/04/metadata" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<?xml version="1.0" encoding="UTF-8" ?>
+<Flow
+  xmlns="http://soap.sforce.com/2006/04/metadata"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+>
     <apiVersion>65.0</apiVersion>
     <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
     <customProperties>
         <name>ScreenProgressIndicator</name>
         <value>
-            <stringValue>{&quot;location&quot;:&quot;top&quot;,&quot;type&quot;:&quot;simple&quot;}</stringValue>
+            <stringValue
+      >{&quot;location&quot;:&quot;top&quot;,&quot;type&quot;:&quot;simple&quot;}</stringValue>
         </value>
     </customProperties>
     <dynamicChoiceSets>
         <name>StepStatus</name>
         <dataType>Picklist</dataType>
-        <displayField xsi:nil="true"/>
-        <object xsi:nil="true"/>
+        <displayField xsi:nil="true" />
+        <object xsi:nil="true" />
         <picklistField>Status__c</picklistField>
         <picklistObject>Onboarding_Project_Step__c</picklistObject>
     </dynamicChoiceSets>
     <environments>Default</environments>
-    <interviewLabel>Choose Steps to Update {!$Flow.CurrentDateTime}</interviewLabel>
+    <interviewLabel
+  >Choose Steps to Update {!$Flow.CurrentDateTime}</interviewLabel>
     <label>Choose Steps to Update</label>
     <processMetadataValues>
         <name>BuilderType</name>
@@ -43,7 +48,8 @@
         <label>Get Steps</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
-        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <assignNullValuesIfNoRecordsFound
+    >false</assignNullValuesIfNoRecordsFound>
         <connector>
             <targetReference>Select_Steps_to_Update</targetReference>
         </connector>
@@ -126,24 +132,30 @@
             <inputParameters>
                 <name>keyField</name>
                 <value>
-                    <complexValue>{&quot;dataType&quot;:&quot;SObject&quot;,&quot;objectType&quot;:&quot;Onboarding_Project_Step__c&quot;,&quot;fieldReferences&quot;:[&quot;Id&quot;],&quot;elementReference&quot;:&quot;Get_Steps&quot;}</complexValue>
-                    <complexValueType>ComplexObjectFieldDetails</complexValueType>
+                    <complexValue
+          >{&quot;dataType&quot;:&quot;SObject&quot;,&quot;objectType&quot;:&quot;Onboarding_Project_Step__c&quot;,&quot;fieldReferences&quot;:[&quot;Id&quot;],&quot;elementReference&quot;:&quot;Get_Steps&quot;}</complexValue>
+                    <complexValueType
+          >ComplexObjectFieldDetails</complexValueType>
                 </value>
             </inputParameters>
             <inputParameters>
                 <name>columns</name>
                 <value>
-                    <stringValue>[{&quot;apiName&quot;:&quot;Name&quot;,&quot;guid&quot;:&quot;column-5d02&quot;,&quot;editable&quot;:false,&quot;hasCustomHeaderLabel&quot;:false,&quot;customHeaderLabel&quot;:&quot;&quot;,&quot;wrapText&quot;:true,&quot;order&quot;:0,&quot;label&quot;:&quot;Step Name&quot;,&quot;type&quot;:&quot;text&quot;},{&quot;apiName&quot;:&quot;Status__c&quot;,&quot;guid&quot;:&quot;column-ce9f&quot;,&quot;editable&quot;:false,&quot;hasCustomHeaderLabel&quot;:false,&quot;customHeaderLabel&quot;:&quot;&quot;,&quot;wrapText&quot;:true,&quot;order&quot;:1,&quot;label&quot;:&quot;Status&quot;,&quot;type&quot;:&quot;text&quot;},{&quot;apiName&quot;:&quot;Assigned_To__c&quot;,&quot;guid&quot;:&quot;column-c99f&quot;,&quot;editable&quot;:false,&quot;hasCustomHeaderLabel&quot;:false,&quot;customHeaderLabel&quot;:&quot;&quot;,&quot;wrapText&quot;:true,&quot;order&quot;:2,&quot;label&quot;:&quot;Assigned To&quot;,&quot;type&quot;:&quot;customRichText&quot;}]</stringValue>
+                    <stringValue
+          >[{&quot;apiName&quot;:&quot;Name&quot;,&quot;guid&quot;:&quot;column-5d02&quot;,&quot;editable&quot;:false,&quot;hasCustomHeaderLabel&quot;:false,&quot;customHeaderLabel&quot;:&quot;&quot;,&quot;wrapText&quot;:true,&quot;order&quot;:0,&quot;label&quot;:&quot;Step Name&quot;,&quot;type&quot;:&quot;text&quot;},{&quot;apiName&quot;:&quot;Status__c&quot;,&quot;guid&quot;:&quot;column-ce9f&quot;,&quot;editable&quot;:false,&quot;hasCustomHeaderLabel&quot;:false,&quot;customHeaderLabel&quot;:&quot;&quot;,&quot;wrapText&quot;:true,&quot;order&quot;:1,&quot;label&quot;:&quot;Status&quot;,&quot;type&quot;:&quot;text&quot;},{&quot;apiName&quot;:&quot;Assigned_To__c&quot;,&quot;guid&quot;:&quot;column-c99f&quot;,&quot;editable&quot;:false,&quot;hasCustomHeaderLabel&quot;:false,&quot;customHeaderLabel&quot;:&quot;&quot;,&quot;wrapText&quot;:true,&quot;order&quot;:2,&quot;label&quot;:&quot;Assigned To&quot;,&quot;type&quot;:&quot;customRichText&quot;}]</stringValue>
                 </value>
             </inputParameters>
             <inputParameters>
                 <name>columnReferences</name>
                 <value>
-                    <complexValue>{&quot;dataType&quot;:&quot;SObject&quot;,&quot;objectType&quot;:&quot;Onboarding_Project_Step__c&quot;,&quot;fieldReferences&quot;:[&quot;Name&quot;,&quot;Status__c&quot;,&quot;Assigned_To__c&quot;],&quot;elementReference&quot;:&quot;Get_Steps&quot;}</complexValue>
-                    <complexValueType>ComplexObjectFieldDetails</complexValueType>
+                    <complexValue
+          >{&quot;dataType&quot;:&quot;SObject&quot;,&quot;objectType&quot;:&quot;Onboarding_Project_Step__c&quot;,&quot;fieldReferences&quot;:[&quot;Name&quot;,&quot;Status__c&quot;,&quot;Assigned_To__c&quot;],&quot;elementReference&quot;:&quot;Get_Steps&quot;}</complexValue>
+                    <complexValueType
+          >ComplexObjectFieldDetails</complexValueType>
                 </value>
             </inputParameters>
-            <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
+            <inputsOnNextNavToAssocScrn
+      >UseStoredValues</inputsOnNextNavToAssocScrn>
             <isRequired>true</isRequired>
             <storeOutputAutomatically>true</storeOutputAutomatically>
             <styleProperties>
@@ -161,7 +173,8 @@
             <dataType>String</dataType>
             <fieldText>New Status</fieldText>
             <fieldType>DropdownBox</fieldType>
-            <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
+            <inputsOnNextNavToAssocScrn
+      >UseStoredValues</inputsOnNextNavToAssocScrn>
             <isRequired>true</isRequired>
             <styleProperties>
                 <verticalAlignment>
@@ -199,7 +212,8 @@
             <transformValueActions>
                 <transformType>Map</transformType>
                 <value>
-                    <elementReference>Select_Steps.selectedRows[$EachItem].Id</elementReference>
+                    <elementReference
+          >Select_Steps.selectedRows[$EachItem].Id</elementReference>
                 </value>
             </transformValueActions>
         </transformValues>
