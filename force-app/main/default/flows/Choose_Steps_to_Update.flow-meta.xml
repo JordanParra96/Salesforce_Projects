@@ -65,6 +65,27 @@
         <object>Onboarding_Project_Step__c</object>
         <storeOutputAutomatically>true</storeOutputAutomatically>
     </recordLookups>
+    <recordUpdates>
+        <name>Update_Steps</name>
+        <label>Update Steps</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Id</field>
+            <operator>In</operator>
+            <value>
+                <elementReference>Transform_Step_IDs</elementReference>
+            </value>
+        </filters>
+        <inputAssignments>
+            <field>Status__c</field>
+            <value>
+                <elementReference>New_Status</elementReference>
+            </value>
+        </inputAssignments>
+        <object>Onboarding_Project_Step__c</object>
+    </recordUpdates>
     <screens>
         <name>Select_Steps_to_Update</name>
         <label>Select Steps to Update</label>
@@ -73,6 +94,9 @@
         <allowBack>true</allowBack>
         <allowFinish>true</allowFinish>
         <allowPause>true</allowPause>
+        <connector>
+            <targetReference>Transform_Step_IDs</targetReference>
+        </connector>
         <fields>
             <name>Select_Steps</name>
             <dataTypeMappings>
@@ -172,6 +196,28 @@
         </connector>
     </start>
     <status>Draft</status>
+    <transforms>
+        <name>Transform_Step_IDs</name>
+        <label>Transform Step IDs</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Update_Steps</targetReference>
+        </connector>
+        <dataType>String</dataType>
+        <isCollection>true</isCollection>
+        <scale>0</scale>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+        <transformValues>
+            <transformValueActions>
+                <transformType>Map</transformType>
+                <value>
+                    <elementReference
+          >Select_Steps.selectedRows[$EachItem].Id</elementReference>
+                </value>
+            </transformValueActions>
+        </transformValues>
+    </transforms>
     <variables>
         <name>recordId</name>
         <dataType>String</dataType>
