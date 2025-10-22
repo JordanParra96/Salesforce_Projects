@@ -12,11 +12,15 @@ jobs:
   # Add labels based on branch name
   add-labels:
     runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+      issues: write
     if: github.event.pull_request.head.ref != ''
     steps:
       - name: Add PR type labels
         uses: actions/github-script@v7
         with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const branchName = context.payload.pull_request.head.ref;
             let labelToAdd = '';
