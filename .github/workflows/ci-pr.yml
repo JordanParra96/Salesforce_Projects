@@ -9,9 +9,39 @@ on:
 
 # Jobs to be executed
 jobs:
+  # Add labels based on branch name
+  add-labels:
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.head.ref != ''
+    steps:
+      - name: Add PR type labels
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const branchName = context.payload.pull_request.head.ref;
+            let labelToAdd = '';
+
+            if (branchName.startsWith('enh_')) {
+              labelToAdd = 'enhancement';
+            } else if (branchName.startsWith('mod_')) {
+              labelToAdd = 'module';
+            } else if (branchName.startsWith('proj_')) {
+              labelToAdd = 'project';
+            }
+
+            if (labelToAdd) {
+              await github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                labels: [labelToAdd]
+              });
+            }
+
   # Formatting and linting only runs on human-submitted PRs
   format-lint-lwc-tests:
     runs-on: ubuntu-latest
+    needs: add-labels
     steps:
       # Checkout the source code
       - name: "Checkout source code"
@@ -25,7 +55,6 @@ jobs:
           path: node_modules
           key: npm-${{ hashFiles('**/package-lock.json') }}
           restore-keys: |
-            npm-${{ env.cache-name }}-
             npm-
       # Install npm dependencies for Prettier and Jest
       - name: "Install npm dependencies"
