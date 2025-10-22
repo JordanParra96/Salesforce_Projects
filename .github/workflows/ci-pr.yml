@@ -42,10 +42,33 @@ jobs:
               });
             }
 
+  # Update description
+  update-desc:
+    runs-on: ubuntu-latest
+    needs: add-labels
+    steps:
+      # Checkout the source code
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # Update PR description with commit list
+      - name: "Update PR description with commit list"
+        if: github.event_name == 'pull_request'
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT }}
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gh
+          PR_NUMBER="${{ github.event.pull_request.number }}"
+          COMMITS=$(gh pr view "$PR_NUMBER" --json commits -q '.commits[] | "- 📝 \(.oid[0:7]) \(.messageHeadline)"')
+          NEW_DESC="Commits in the PR:
+          $COMMITS"
+          gh pr edit "$PR_NUMBER" --body "$NEW_DESC"
+
   # Formatting and linting only runs on human-submitted PRs
   format-lint-lwc-tests:
     runs-on: ubuntu-latest
-    needs: add-labels
+    needs: update-desc
     steps:
       # Checkout the source code
       - name: "Checkout source code"
@@ -130,20 +153,6 @@ jobs:
               echo "Missing DEVHUB_SFDX_URL secret. Is this workflow running on a fork?";
               exit 1;
           fi
-
-      # Update PR description with commit list
-      - name: "Update PR description with commit list"
-        if: github.event_name == 'pull_request'
-        env:
-          GH_TOKEN: ${{ secrets.GH_PAT }}
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y gh
-          PR_NUMBER="${{ github.event.pull_request.number }}"
-          COMMITS=$(gh pr view "$PR_NUMBER" --json commits -q '.commits[] | "- 📝 \(.oid[0:7]) \(.messageHeadline)"')
-          NEW_DESC="Commits in the PR:
-          $COMMITS"
-          gh pr edit "$PR_NUMBER" --body "$NEW_DESC"
 
       # Authenticate dev environment
       - name: "Authenticate Dev environment"
