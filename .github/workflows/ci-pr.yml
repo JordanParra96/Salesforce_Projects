@@ -47,6 +47,10 @@ jobs:
     runs-on: ubuntu-latest
     needs: add-labels
     steps:
+      # Checkout the source code
+      - name: Checkout code
+        uses: actions/checkout@v4
+
       # Update PR description with commit list
       - name: "Update PR description with commit list"
         if: github.event_name == 'pull_request'
