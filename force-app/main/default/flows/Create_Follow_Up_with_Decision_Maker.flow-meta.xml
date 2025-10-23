@@ -1,5 +1,32 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <actionCalls>
+        <name>Chatter_Post_to_Manager</name>
+        <label>Chatter Post to Manager</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <actionName>chatterPost</actionName>
+        <actionType>chatterPost</actionType>
+        <connector>
+            <targetReference>Create_Task</targetReference>
+        </connector>
+        <flowTransactionModel>CurrentTransaction</flowTransactionModel>
+        <inputParameters>
+            <name>text</name>
+            <value>
+                <elementReference>ChatterPostManager</elementReference>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>subjectNameOrId</name>
+            <value>
+                <elementReference>Get_Owner_Manager.Id</elementReference>
+            </value>
+        </inputParameters>
+        <nameSegment>chatterPost</nameSegment>
+        <offset>0</offset>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </actionCalls>
     <apiVersion>65.0</apiVersion>
     <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
     <environments>Default</environments>
@@ -78,7 +105,7 @@
         <assignNullValuesIfNoRecordsFound
     >false</assignNullValuesIfNoRecordsFound>
         <connector>
-            <targetReference>Create_Task</targetReference>
+            <targetReference>Get_Owner_Manager</targetReference>
         </connector>
         <filterLogic>and</filterLogic>
         <filters>
@@ -99,6 +126,28 @@
         <object>OpportunityContactRole</object>
         <sortField>CreatedDate</sortField>
         <sortOrder>Desc</sortOrder>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordLookups>
+    <recordLookups>
+        <name>Get_Owner_Manager</name>
+        <label>Get Owner Manager</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignNullValuesIfNoRecordsFound
+    >false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>Chatter_Post_to_Manager</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Id</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>$Record.Owner.ManagerId</elementReference>
+            </value>
+        </filters>
+        <getFirstRecordOnly>true</getFirstRecordOnly>
+        <object>User</object>
         <storeOutputAutomatically>true</storeOutputAutomatically>
     </recordLookups>
     <start>
@@ -129,4 +178,11 @@
         <triggerType>RecordAfterSave</triggerType>
     </start>
     <status>Draft</status>
+    <textTemplates>
+        <name>ChatterPostManager</name>
+        <isViewedAsPlainText>true</isViewedAsPlainText>
+        <text>@[{Get_Owner_Manager.Id}]:
+This opportunity was marked Closed Lost.
+Closed by: {!$User.FirstName} {!$User.LastName} {!$User.Email}</text>
+    </textTemplates>
 </Flow>
