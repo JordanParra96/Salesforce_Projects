@@ -1,5 +1,49 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <actionCalls>
+        <name>Chatter_Post_to_Account_Owner</name>
+        <label>Chatter Post to Account Owner</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <actionName>chatterPost</actionName>
+        <actionType>chatterPost</actionType>
+        <connector>
+            <targetReference>Email_Lead_Routing</targetReference>
+        </connector>
+        <flowTransactionModel>CurrentTransaction</flowTransactionModel>
+        <inputParameters>
+            <name>text</name>
+            <value>
+                <elementReference>ChatterMessage</elementReference>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>subjectNameOrId</name>
+            <value>
+                <elementReference>$Record.Id</elementReference>
+            </value>
+        </inputParameters>
+        <nameSegment>chatterPost</nameSegment>
+        <offset>0</offset>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </actionCalls>
+    <actionCalls>
+        <name>Email_Lead_Routing</name>
+        <label>Email Lead Routing</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <actionName>Lead.Send_Matching_Account_to_Lead_Routing</actionName>
+        <actionType>emailAlert</actionType>
+        <flowTransactionModel>CurrentTransaction</flowTransactionModel>
+        <inputParameters>
+            <name>SObjectRowId</name>
+            <value>
+                <elementReference>$Record.Id</elementReference>
+            </value>
+        </inputParameters>
+        <nameSegment>Lead.Send_Matching_Account_to_Lead_Routing</nameSegment>
+        <offset>0</offset>
+    </actionCalls>
     <apiVersion>65.0</apiVersion>
     <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
     <environments>Default</environments>
@@ -54,6 +98,9 @@
         <label>Update Matching Account</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
+        <connector>
+            <targetReference>Chatter_Post_to_Account_Owner</targetReference>
+        </connector>
         <inputAssignments>
             <field>Possible_Matching_Account__c</field>
             <value>
@@ -74,4 +121,9 @@
         <triggerType>RecordAfterSave</triggerType>
     </start>
     <status>Draft</status>
+    <textTemplates>
+        <name>ChatterMessage</name>
+        <isViewedAsPlainText>true</isViewedAsPlainText>
+        <text>@[{!Look_for_Matching_Account.OwnerId}]</text>
+    </textTemplates>
 </Flow>
