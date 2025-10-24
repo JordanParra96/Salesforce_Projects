@@ -42,3 +42,5 @@ this repository contains the metadata of all the projects made for trailhead, th
 - [Multirecord Elements and Transforms in Flows](https://trailhead.salesforce.com/content/learn/modules/multirecord-elements-and-transforms-in-flows)
 
 - [Data and Actions in Flows](https://trailhead.salesforce.com/content/learn/modules/data-and-actions-in-flows?trail_id=build-flows-with-flow-builder)
+
+- [Flow Builder Logic](https://trailhead.salesforce.com/content/learn/modules/flow-build-logic?trail_id=build-flows-with-flow-builder)
