@@ -51,6 +51,13 @@
         >Get_Account_Data.BillingStreet</elementReference>
             </value>
         </assignmentItems>
+        <assignmentItems>
+            <assignToReference>Get_Account_Data.Description</assignToReference>
+            <operator>Add</operator>
+            <value>
+                <elementReference>frmChangeDateNote</elementReference>
+            </value>
+        </assignmentItems>
         <connector>
             <targetReference>Update_Account</targetReference>
         </connector>
@@ -136,6 +143,12 @@
         </rules>
     </decisions>
     <environments>Default</environments>
+    <formulas>
+        <name>frmChangeDateNote</name>
+        <dataType>String</dataType>
+        <expression
+    >&quot; Shipping Address added on &quot; &amp; TEXT({!$Flow.CurrentDate})</expression>
+    </formulas>
     <interviewLabel
   >Set Shipping Address {!$Flow.CurrentDateTime}</interviewLabel>
     <label>Set Shipping Address</label>
