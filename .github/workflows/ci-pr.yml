@@ -127,7 +127,7 @@ jobs:
       - name: APEX full scan
         run: |
           if ls ./force-app/main/default/classes/*.cls 1> /dev/null 2>&1; then
-            pmd check --dir ./force-app/main/default/classes/*.cls --rulesets ./ruleset.xml -f text
+            pmd check --dir ./force-app/main/default/classes/*.cls --rulesets ./ruleset.xml -f text --cache ./cache -r ./report
           else
             echo "No Apex classes found to scan."
           fi
