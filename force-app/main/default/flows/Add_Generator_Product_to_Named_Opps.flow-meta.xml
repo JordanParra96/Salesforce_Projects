@@ -19,7 +19,7 @@
                 </rightValue>
             </conditions>
             <connector>
-                <targetReference>Get_1500_Product</targetReference>
+                <targetReference>Create_1500_Opp_Product</targetReference>
             </connector>
             <label>1500kW</label>
         </rules>
@@ -34,9 +34,24 @@
                 </rightValue>
             </conditions>
             <connector>
-                <targetReference>Get_2000_Product</targetReference>
+                <targetReference>Create_2000_Opp_Product</targetReference>
             </connector>
             <label>2000kW</label>
+        </rules>
+        <rules>
+            <name>X1000kW</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.Name</leftValueReference>
+                <operator>Contains</operator>
+                <rightValue>
+                    <stringValue>1000</stringValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Create_1000_Opp_Product</targetReference>
+            </connector>
+            <label>1000kW</label>
         </rules>
     </decisions>
     <environments>Default</environments>
@@ -62,172 +77,6 @@
         </value>
     </processMetadataValues>
     <processType>AutoLaunchedFlow</processType>
-    <recordCreates>
-        <name>Create_1500_Opp_Product</name>
-        <label>Create 1500 Opp Product</label>
-        <locationX>0</locationX>
-        <locationY>0</locationY>
-        <inputAssignments>
-            <field>OpportunityId</field>
-            <value>
-                <elementReference>$Record.Id</elementReference>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>PricebookEntryId</field>
-            <value>
-                <elementReference>Get_1500_PBE.Id</elementReference>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>Quantity</field>
-            <value>
-                <numberValue>1.0</numberValue>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>TotalPrice</field>
-            <value>
-                <elementReference>Get_1500_PBE.UnitPrice</elementReference>
-            </value>
-        </inputAssignments>
-        <object>OpportunityLineItem</object>
-        <storeOutputAutomatically>true</storeOutputAutomatically>
-    </recordCreates>
-    <recordCreates>
-        <name>Create_2000_Opp_Product</name>
-        <label>Create 2000 Opp Product</label>
-        <locationX>0</locationX>
-        <locationY>0</locationY>
-        <inputAssignments>
-            <field>OpportunityId</field>
-            <value>
-                <elementReference>$Record.Id</elementReference>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>PricebookEntryId</field>
-            <value>
-                <elementReference>Get_2000_PBE.Id</elementReference>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>Quantity</field>
-            <value>
-                <numberValue>1.0</numberValue>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>TotalPrice</field>
-            <value>
-                <elementReference>Get_2000_PBE.UnitPrice</elementReference>
-            </value>
-        </inputAssignments>
-        <object>OpportunityLineItem</object>
-        <storeOutputAutomatically>true</storeOutputAutomatically>
-    </recordCreates>
-    <recordLookups>
-        <name>Get_1500_PBE</name>
-        <label>Get 1500 PBE</label>
-        <locationX>0</locationX>
-        <locationY>0</locationY>
-        <assignNullValuesIfNoRecordsFound
-    >false</assignNullValuesIfNoRecordsFound>
-        <connector>
-            <targetReference>Create_1500_Opp_Product</targetReference>
-        </connector>
-        <filterLogic>and</filterLogic>
-        <filters>
-            <field>Pricebook2Id</field>
-            <operator>EqualTo</operator>
-            <value>
-                <elementReference>Get_Pricebook.Id</elementReference>
-            </value>
-        </filters>
-        <filters>
-            <field>Product2Id</field>
-            <operator>EqualTo</operator>
-            <value>
-                <elementReference>Get_1500_Product.Id</elementReference>
-            </value>
-        </filters>
-        <getFirstRecordOnly>true</getFirstRecordOnly>
-        <object>PricebookEntry</object>
-        <storeOutputAutomatically>true</storeOutputAutomatically>
-    </recordLookups>
-    <recordLookups>
-        <name>Get_1500_Product</name>
-        <label>Get 1500 Product</label>
-        <locationX>0</locationX>
-        <locationY>0</locationY>
-        <assignNullValuesIfNoRecordsFound
-    >false</assignNullValuesIfNoRecordsFound>
-        <connector>
-            <targetReference>Get_1500_PBE</targetReference>
-        </connector>
-        <filterLogic>and</filterLogic>
-        <filters>
-            <field>Name</field>
-            <operator>Contains</operator>
-            <value>
-                <stringValue>1500</stringValue>
-            </value>
-        </filters>
-        <getFirstRecordOnly>true</getFirstRecordOnly>
-        <object>Product2</object>
-        <storeOutputAutomatically>true</storeOutputAutomatically>
-    </recordLookups>
-    <recordLookups>
-        <name>Get_2000_PBE</name>
-        <label>Get 2000 PBE</label>
-        <locationX>0</locationX>
-        <locationY>0</locationY>
-        <assignNullValuesIfNoRecordsFound
-    >false</assignNullValuesIfNoRecordsFound>
-        <connector>
-            <targetReference>Create_2000_Opp_Product</targetReference>
-        </connector>
-        <filterLogic>and</filterLogic>
-        <filters>
-            <field>Pricebook2Id</field>
-            <operator>EqualTo</operator>
-            <value>
-                <elementReference>Get_Pricebook.Id</elementReference>
-            </value>
-        </filters>
-        <filters>
-            <field>Product2Id</field>
-            <operator>EqualTo</operator>
-            <value>
-                <elementReference>Get_2000_Product.Id</elementReference>
-            </value>
-        </filters>
-        <getFirstRecordOnly>true</getFirstRecordOnly>
-        <object>PricebookEntry</object>
-        <storeOutputAutomatically>true</storeOutputAutomatically>
-    </recordLookups>
-    <recordLookups>
-        <name>Get_2000_Product</name>
-        <label>Get 2000 Product</label>
-        <locationX>0</locationX>
-        <locationY>0</locationY>
-        <assignNullValuesIfNoRecordsFound
-    >false</assignNullValuesIfNoRecordsFound>
-        <connector>
-            <targetReference>Get_2000_PBE</targetReference>
-        </connector>
-        <filterLogic>and</filterLogic>
-        <filters>
-            <field>Name</field>
-            <operator>Contains</operator>
-            <value>
-                <stringValue>2000</stringValue>
-            </value>
-        </filters>
-        <getFirstRecordOnly>true</getFirstRecordOnly>
-        <object>Product2</object>
-        <storeOutputAutomatically>true</storeOutputAutomatically>
-    </recordLookups>
     <recordLookups>
         <name>Get_Pricebook</name>
         <label>Get Pricebook</label>
@@ -261,4 +110,79 @@
         <triggerType>RecordAfterSave</triggerType>
     </start>
     <status>Active</status>
+    <subflows>
+        <name>Create_1000_Opp_Product</name>
+        <label>Create 1000 Opp Product</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <flowName>Subflow_Create_Generator_Opp_Product</flowName>
+        <inputAssignments>
+            <name>OpportunityID</name>
+            <value>
+                <elementReference>$Record.Id</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <name>PricebookID</name>
+            <value>
+                <elementReference>Get_Pricebook.Id</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <name>ProductKW</name>
+            <value>
+                <stringValue>1000</stringValue>
+            </value>
+        </inputAssignments>
+    </subflows>
+    <subflows>
+        <name>Create_1500_Opp_Product</name>
+        <label>Create 1500 Opp Product</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <flowName>Subflow_Create_Generator_Opp_Product</flowName>
+        <inputAssignments>
+            <name>OpportunityID</name>
+            <value>
+                <elementReference>$Record.Id</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <name>PricebookID</name>
+            <value>
+                <elementReference>Get_Pricebook.Id</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <name>ProductKW</name>
+            <value>
+                <stringValue>1500</stringValue>
+            </value>
+        </inputAssignments>
+    </subflows>
+    <subflows>
+        <name>Create_2000_Opp_Product</name>
+        <label>Create 2000 Opp Product</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <flowName>Subflow_Create_Generator_Opp_Product</flowName>
+        <inputAssignments>
+            <name>OpportunityID</name>
+            <value>
+                <elementReference>$Record.Id</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <name>PricebookID</name>
+            <value>
+                <elementReference>Get_Pricebook.Id</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <name>ProductKW</name>
+            <value>
+                <stringValue>2000</stringValue>
+            </value>
+        </inputAssignments>
+    </subflows>
 </Flow>
