@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <Flow xmlns="http://soap.sforce.com/2006/04/metadata">
     <apiVersion>65.0</apiVersion>
     <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
@@ -11,35 +11,44 @@
             <assignToReference>Get_Account_Data.ShippingCity</assignToReference>
             <operator>Assign</operator>
             <value>
-                <elementReference>Get_Account_Data.BillingCity</elementReference>
+                <elementReference
+        >Get_Account_Data.BillingCity</elementReference>
             </value>
         </assignmentItems>
         <assignmentItems>
-            <assignToReference>Get_Account_Data.ShippingCountry</assignToReference>
+            <assignToReference
+      >Get_Account_Data.ShippingCountry</assignToReference>
             <operator>Assign</operator>
             <value>
-                <elementReference>Get_Account_Data.BillingCountry</elementReference>
+                <elementReference
+        >Get_Account_Data.BillingCountry</elementReference>
             </value>
         </assignmentItems>
         <assignmentItems>
-            <assignToReference>Get_Account_Data.ShippingPostalCode</assignToReference>
+            <assignToReference
+      >Get_Account_Data.ShippingPostalCode</assignToReference>
             <operator>Assign</operator>
             <value>
-                <elementReference>Get_Account_Data.BillingPostalCode</elementReference>
+                <elementReference
+        >Get_Account_Data.BillingPostalCode</elementReference>
             </value>
         </assignmentItems>
         <assignmentItems>
-            <assignToReference>Get_Account_Data.ShippingState</assignToReference>
+            <assignToReference
+      >Get_Account_Data.ShippingState</assignToReference>
             <operator>Assign</operator>
             <value>
-                <elementReference>Get_Account_Data.BillingState</elementReference>
+                <elementReference
+        >Get_Account_Data.BillingState</elementReference>
             </value>
         </assignmentItems>
         <assignmentItems>
-            <assignToReference>Get_Account_Data.ShippingStreet</assignToReference>
+            <assignToReference
+      >Get_Account_Data.ShippingStreet</assignToReference>
             <operator>Assign</operator>
             <value>
-                <elementReference>Get_Account_Data.BillingStreet</elementReference>
+                <elementReference
+        >Get_Account_Data.BillingStreet</elementReference>
             </value>
         </assignmentItems>
         <connector>
@@ -59,28 +68,32 @@
             </value>
         </assignmentItems>
         <assignmentItems>
-            <assignToReference>Get_Account_Data.ShippingCountry</assignToReference>
+            <assignToReference
+      >Get_Account_Data.ShippingCountry</assignToReference>
             <operator>Assign</operator>
             <value>
                 <elementReference>ScreenShipping.country</elementReference>
             </value>
         </assignmentItems>
         <assignmentItems>
-            <assignToReference>Get_Account_Data.ShippingPostalCode</assignToReference>
+            <assignToReference
+      >Get_Account_Data.ShippingPostalCode</assignToReference>
             <operator>Assign</operator>
             <value>
                 <elementReference>ScreenShipping.postalCode</elementReference>
             </value>
         </assignmentItems>
         <assignmentItems>
-            <assignToReference>Get_Account_Data.ShippingState</assignToReference>
+            <assignToReference
+      >Get_Account_Data.ShippingState</assignToReference>
             <operator>Assign</operator>
             <value>
                 <elementReference>ScreenShipping.province</elementReference>
             </value>
         </assignmentItems>
         <assignmentItems>
-            <assignToReference>Get_Account_Data.ShippingStreet</assignToReference>
+            <assignToReference
+      >Get_Account_Data.ShippingStreet</assignToReference>
             <operator>Assign</operator>
             <value>
                 <elementReference>ScreenShipping.street</elementReference>
@@ -93,7 +106,8 @@
     <customProperties>
         <name>ScreenProgressIndicator</name>
         <value>
-            <stringValue>{&quot;location&quot;:&quot;top&quot;,&quot;type&quot;:&quot;simple&quot;}</stringValue>
+            <stringValue
+      >{&quot;location&quot;:&quot;top&quot;,&quot;type&quot;:&quot;simple&quot;}</stringValue>
         </value>
     </customProperties>
     <decisions>
@@ -122,7 +136,8 @@
         </rules>
     </decisions>
     <environments>Default</environments>
-    <interviewLabel>Set Shipping Address {!$Flow.CurrentDateTime}</interviewLabel>
+    <interviewLabel
+  >Set Shipping Address {!$Flow.CurrentDateTime}</interviewLabel>
     <label>Set Shipping Address</label>
     <processMetadataValues>
         <name>BuilderType</name>
@@ -148,7 +163,8 @@
         <label>Get Account Data</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
-        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <assignNullValuesIfNoRecordsFound
+    >false</assignNullValuesIfNoRecordsFound>
         <connector>
             <targetReference>Enter_Address</targetReference>
         </connector>
@@ -185,9 +201,11 @@
         <fields>
             <name>Use_the_billing_address</name>
             <dataType>Boolean</dataType>
-            <fieldText>Use the billing address for the shipping address</fieldText>
+            <fieldText
+      >Use the billing address for the shipping address</fieldText>
             <fieldType>InputField</fieldType>
-            <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
+            <inputsOnNextNavToAssocScrn
+      >UseStoredValues</inputsOnNextNavToAssocScrn>
             <isRequired>true</isRequired>
             <styleProperties>
                 <verticalAlignment>
@@ -208,7 +226,8 @@
                     <stringValue>Shipping Address</stringValue>
                 </value>
             </inputParameters>
-            <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
+            <inputsOnNextNavToAssocScrn
+      >UseStoredValues</inputsOnNextNavToAssocScrn>
             <isRequired>true</isRequired>
             <storeOutputAutomatically>true</storeOutputAutomatically>
             <styleProperties>
