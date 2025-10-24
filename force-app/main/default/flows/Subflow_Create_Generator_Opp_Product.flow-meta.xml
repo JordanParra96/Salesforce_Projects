@@ -101,7 +101,7 @@
             <field>Name</field>
             <operator>Contains</operator>
             <value>
-                <stringValue>ProductKW</stringValue>
+                <elementReference>ProductKW</elementReference>
             </value>
         </filters>
         <getFirstRecordOnly>true</getFirstRecordOnly>
