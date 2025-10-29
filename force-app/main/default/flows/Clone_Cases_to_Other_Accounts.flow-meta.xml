@@ -1,29 +1,89 @@
-<?xml version="1.0" encoding="UTF-8" ?>
-<Flow
-  xmlns="http://soap.sforce.com/2006/04/metadata"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
->
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
     <apiVersion>65.0</apiVersion>
     <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
+    <assignments>
+        <name>Add_Values_to_Collection</name>
+        <label>Add Values to Collection</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>varCurrentCase.AccountId</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>Account.recordId</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>varCurrentCase.ContactId</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>RepeaterLoop.Contact.recordId</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>varCurrentCase.Description</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>RepeaterLoop.Description</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>varCurrentCase.Priority</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>RepeaterLoop.Priority</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>varCurrentCase.Subject</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>RepeaterLoop.Subject</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>collNewCases</assignToReference>
+            <operator>Add</operator>
+            <value>
+                <elementReference>varCurrentCase</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>RepeaterLoop</targetReference>
+        </connector>
+    </assignments>
     <customProperties>
         <name>ScreenProgressIndicator</name>
         <value>
-            <stringValue
-      >{&quot;location&quot;:&quot;top&quot;,&quot;type&quot;:&quot;simple&quot;}</stringValue>
+            <stringValue>{&quot;location&quot;:&quot;top&quot;,&quot;type&quot;:&quot;simple&quot;}</stringValue>
         </value>
     </customProperties>
     <dynamicChoiceSets>
         <name>PrioritySet</name>
         <dataType>Picklist</dataType>
-        <displayField xsi:nil="true" />
-        <object xsi:nil="true" />
+        <displayField xsi:nil="true"/>
+        <object xsi:nil="true"/>
         <picklistField>Priority</picklistField>
         <picklistObject>Case</picklistObject>
     </dynamicChoiceSets>
     <environments>Default</environments>
-    <interviewLabel
-  >Clone Cases to Other Accounts {!$Flow.CurrentDateTime}</interviewLabel>
+    <interviewLabel>Clone Cases to Other Accounts {!$Flow.CurrentDateTime}</interviewLabel>
     <label>Clone Cases to Other Accounts</label>
+    <loops>
+        <name>RepeaterLoop</name>
+        <label>RepeaterLoop</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <collectionReference>CaseRepeater.AllItems</collectionReference>
+        <iterationOrder>Asc</iterationOrder>
+        <nextValueConnector>
+            <targetReference>Add_Values_to_Collection</targetReference>
+        </nextValueConnector>
+        <noMoreValuesConnector>
+            <targetReference>Create_Clones</targetReference>
+        </noMoreValuesConnector>
+    </loops>
     <processMetadataValues>
         <name>BuilderType</name>
         <value>
@@ -43,13 +103,19 @@
         </value>
     </processMetadataValues>
     <processType>Flow</processType>
+    <recordCreates>
+        <name>Create_Clones</name>
+        <label>Create Clones</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <inputReference>collNewCases</inputReference>
+    </recordCreates>
     <recordLookups>
         <name>Get_Case_Details</name>
         <label>Get Case Details</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
-        <assignNullValuesIfNoRecordsFound
-    >false</assignNullValuesIfNoRecordsFound>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
             <targetReference>Details_for_Case_Clones</targetReference>
         </connector>
@@ -73,6 +139,9 @@
         <allowBack>true</allowBack>
         <allowFinish>true</allowFinish>
         <allowPause>true</allowPause>
+        <connector>
+            <targetReference>RepeaterLoop</targetReference>
+        </connector>
         <fields>
             <name>Account</name>
             <extensionName>flowruntime:lookup</extensionName>
@@ -95,8 +164,7 @@
                     <stringValue>Case</stringValue>
                 </value>
             </inputParameters>
-            <inputsOnNextNavToAssocScrn
-      >UseStoredValues</inputsOnNextNavToAssocScrn>
+            <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
             <isRequired>true</isRequired>
             <storeOutputAutomatically>true</storeOutputAutomatically>
             <styleProperties>
@@ -133,8 +201,7 @@
                         <stringValue>Case</stringValue>
                     </value>
                 </inputParameters>
-                <inputsOnNextNavToAssocScrn
-        >UseStoredValues</inputsOnNextNavToAssocScrn>
+                <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
                 <isRequired>true</isRequired>
                 <storeOutputAutomatically>true</storeOutputAutomatically>
                 <styleProperties>
@@ -150,13 +217,11 @@
                 <name>Subject</name>
                 <dataType>String</dataType>
                 <defaultValue>
-                    <elementReference
-          >Get_Case_Details.Subject</elementReference>
+                    <elementReference>Get_Case_Details.Subject</elementReference>
                 </defaultValue>
                 <fieldText>Subject</fieldText>
                 <fieldType>InputField</fieldType>
-                <inputsOnNextNavToAssocScrn
-        >UseStoredValues</inputsOnNextNavToAssocScrn>
+                <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
                 <isRequired>false</isRequired>
                 <styleProperties>
                     <verticalAlignment>
@@ -174,8 +239,7 @@
                 </defaultValue>
                 <fieldText>Description</fieldText>
                 <fieldType>LargeTextArea</fieldType>
-                <inputsOnNextNavToAssocScrn
-        >UseStoredValues</inputsOnNextNavToAssocScrn>
+                <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
                 <isRequired>false</isRequired>
                 <styleProperties>
                     <verticalAlignment>
@@ -195,8 +259,7 @@
                 </defaultValue>
                 <fieldText>Priority</fieldText>
                 <fieldType>DropdownBox</fieldType>
-                <inputsOnNextNavToAssocScrn
-        >UseStoredValues</inputsOnNextNavToAssocScrn>
+                <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
                 <isRequired>false</isRequired>
                 <styleProperties>
                     <verticalAlignment>
