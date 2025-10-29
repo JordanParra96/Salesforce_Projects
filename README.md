@@ -44,3 +44,5 @@ this repository contains the metadata of all the projects made for trailhead, th
 - [Data and Actions in Flows](https://trailhead.salesforce.com/content/learn/modules/data-and-actions-in-flows?trail_id=build-flows-with-flow-builder)
 
 - [Flow Builder Logic](https://trailhead.salesforce.com/content/learn/modules/flow-build-logic?trail_id=build-flows-with-flow-builder)
+
+- [Loops in Flow Builder](https://trailhead.salesforce.com/content/learn/modules/loops-in-flow-builder)
