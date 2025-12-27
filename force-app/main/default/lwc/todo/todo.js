@@ -8,6 +8,13 @@ import RELATED_RECORD_ID from "@salesforce/schema/Todo_Item__c.RelatedRecordId__
 import { refreshApex } from "@salesforce/apex";
 import getTodoItems from "@salesforce/apex/TodoCtrl.getTodoItems";
 
+import {
+  enablePopout,
+  EnclosingUtilityId,
+  updateUtility
+} from "lightning/platformUtilityBarApi";
+import { CurrentPageReference } from "lightning/navigation";
+
 export default class Todo extends LightningElement {
   objectApiName = TODO_OBJECT;
   nameField = NAME_FIELD;
@@ -19,14 +26,51 @@ export default class Todo extends LightningElement {
 
   recordId = null;
 
+  utilityAttrs = {
+    label: "To-do List",
+    highlighted: false
+  };
+
+  @wire(EnclosingUtilityId)
+  wiredResultUtility(utilityId) {
+    if (utilityId) {
+      this.utilityId = utilityId;
+      enablePopout(this.utilityId, false, {
+        disabledText: "disabled"
+      });
+    }
+  }
+
+  @wire(CurrentPageReference)
+  wireCurrentPageReference(currentPageReference) {
+    if (currentPageReference) {
+      this.recordId = currentPageReference.attributes.recordId
+        ? currentPageReference.attributes.recordId
+        : null;
+    }
+  }
+
   @wire(getTodoItems, { relatedRecordId: "$recordId" })
   handleList(wireResult) {
     this.wireResult = wireResult;
     if (wireResult.data) {
+      let overdueTaskCount = 0;
       this.todoItems = wireResult.data.map((item) => {
         let isOverDue = new Date(item.Due_Date__c) < new Date();
+        if (isOverDue) {
+          overdueTaskCount++;
+        }
         return { ...item, isOverDue: isOverDue };
       });
+      if (overdueTaskCount > 0) {
+        this.utilityAttrs.label += " (" + overdueTaskCount + " Overdue)";
+        this.utilityAttrs.highlighted = true;
+        updateUtility(this.utilityId, this.utilityAttrs);
+      } else {
+        this.utilityAttrs.label = "To-do List";
+        this.utilityAttrs.highlighted = false;
+        updateUtility(this.utilityId, this.utilityAttrs);
+      }
     }
   }
 
