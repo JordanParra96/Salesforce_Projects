@@ -18,6 +18,7 @@
     <tabs>House__c</tabs>
     <tabs>standard-report</tabs>
     <tabs>standard-Dashboard</tabs>
+    <tabs>Todo_Item__c</tabs>
     <uiType>Lightning</uiType>
     <utilityBar>Dreamhouse_UtilityBar</utilityBar>
 </CustomApplication>
