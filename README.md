@@ -46,3 +46,5 @@ this repository contains the metadata of all the projects made for trailhead, th
 - [Flow Builder Logic](https://trailhead.salesforce.com/content/learn/modules/flow-build-logic?trail_id=build-flows-with-flow-builder)
 
 - [Loops in Flow Builder](https://trailhead.salesforce.com/content/learn/modules/loops-in-flow-builder)
+
+- [Platform App Builder Certification Maintenance (Winter '26)](https://trailhead.salesforce.com/content/learn/modules/platform-app-builder-certification-maintenance-winter-26)
