@@ -48,3 +48,6 @@ this repository contains the metadata of all the projects made for trailhead, th
 - [Loops in Flow Builder](https://trailhead.salesforce.com/content/learn/modules/loops-in-flow-builder)
 
 - [Platform App Builder Certification Maintenance (Winter '26)](https://trailhead.salesforce.com/content/learn/modules/platform-app-builder-certification-maintenance-winter-26)
+
+- [Platform Developer Certification Maintenance (Winter '26)](https://trailhead.salesforce.com/content/learn/modules/platform-developer-certification-maintenance-winter-26)
+  For the development of this module is neccesary to deploy [THPDIWI26](04tNS000000EQYv)
