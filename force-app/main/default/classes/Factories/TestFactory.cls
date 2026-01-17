@@ -20,7 +20,8 @@ public class TestFactory {
       Order.SObjectType,
       OrderItem.SObjectType,
       Task.SObjectType,
-      Employee__c.SObjectType
+      Employee__c.SObjectType,
+      Todo_Item__c.SObjectType
     }
   );
 
@@ -302,6 +303,68 @@ public class TestFactory {
   }
 
   /**
+   * @description Generates a single Todo_Item__c with specified parameters.
+   * @param params A map containing parameters for the Todo_Item__c:
+   *               - name: The name of the Todo_Item__c.
+   *               - relatedRecordId: The Id of the related record (e.g., Account).
+   *               - dueDate: The due date for the Todo_Item__c.
+   *               - isComplete: Whether the Todo_Item__c is complete.
+   *               - doInsert: Whether to insert the Todo_Item__c into the database.
+   * @return The created Todo_Item__c.
+   */
+  public static Todo_Item__c getAccountWithTodoItem(
+    Map<String, Object> params
+  ) {
+    params.put('uow', uow);
+    return TestTodoItemFactory.getAccountWithTodoItem(params);
+  }
+
+  /**
+   * @description Generates a specified number of Todo_Item__c records for a related record.
+   * @param params A map containing parameters for the Todo_Item__c records:
+   *               - numTodos: The number of Todo_Item__c records to create.
+   *               - relatedRecordId: The Id of the related record (e.g., Account).
+   *               - doInsert: Whether to insert the Todo_Item__c records into the database
+   * @return An array of created Todo_Item__c records.
+   */
+  public static Todo_Item__c[] generateTodoItems(Map<String, Object> params) {
+    params.put('uow', uow);
+    return TestTodoItemFactory.generateTodoItems(params);
+  }
+
+  /**
+   * @description Generates a mix of complete and incomplete Todo_Item__c records for testing filtering.
+   * @param params A map containing parameters for the Todo_Item__c records:
+   *               - numComplete: The number of complete Todo_Item__c records to create.
+   *               - numIncomplete: The number of incomplete Todo_Item__c records to create.
+   *               - relatedRecordId: The Id of the related record (e.g., Account).
+   *               - doInsert: Whether to insert the Todo_Item__c records into the database.
+   * @return An array of created Todo_Item__c records (both complete and incomplete).
+   */
+  public static Todo_Item__c[] generateMixedTodoItems(
+    Map<String, Object> params
+  ) {
+    params.put('uow', uow);
+    return TestTodoItemFactory.generateMixedTodoItems(params);
+  }
+
+  /**
+   * @description Generates Todo_Item__c records with specified due dates for testing date-based filtering and ordering.
+   * @param params A map containing parameters for the Todo_Item__c records:
+   *               - dueDates: A list of dates for the Todo_Item__c records.
+   *               - relatedRecordId: The Id of the related record (e.g., Account).
+   *               - isComplete: Whether the generated Todo_Item__c records are complete.
+   *               - doInsert: Whether to insert the Todo_Item__c records into the database.
+   * @return An array of created Todo_Item__c records with specified due dates.
+   */
+  public static Todo_Item__c[] generateTodoItemsWithDates(
+    Map<String, Object> params
+  ) {
+    params.put('uow', uow);
+    return TestTodoItemFactory.generateTodoItemsWithDates(params);
+  }
+
+  /**
    * @description Clears the test data by reinitializing the Unit of Work.
    */
   public static void clearData() {
@@ -320,7 +383,8 @@ public class TestFactory {
         Order.SObjectType,
         OrderItem.SObjectType,
         Task.SObjectType,
-        Employee__c.SObjectType
+        Employee__c.SObjectType,
+        Todo_Item__c.SObjectType
       }
     );
   }
