@@ -2,41 +2,29 @@
 private class TodoCtrlTest {
   @IsTest
   static void testGetTodoItemsFiltersAndOrder() {
-    // Create parent records - note: don't use clearData between calls
-    // The test should manage data creation as a single transaction
-    Account acc1 = new Account(Name = 'Test Account 1');
-    Account acc2 = new Account(Name = 'Test Account 2');
-    insert new List<Account>{ acc1, acc2 };
-
-    // Create todo items using the factory
     List<Todo_Item__c> todosForAcc1 = TestFactory.generateTodoItemsWithDates(
       new Map<String, Object>{
         'dueDates' => new List<Date>{
-          Date.today().addDays(-5), // Past due
-          Date.today().addDays(5) // Future due
+          Date.today().addDays(-5),
+          Date.today().addDays(5)
         },
-        'relatedRecord' => acc1,
         'isComplete' => false,
         'doInsert' => true
       }
     );
 
-    // Create a completed todo (should be excluded)
-    Todo_Item__c completedTodo = TestFactory.getTodoItem(
+    Todo_Item__c completedTodo = TestFactory.getAccountWithTodoItem(
       new Map<String, Object>{
         'name' => 'Completed Task',
-        'relatedRecord' => acc1,
         'dueDate' => Date.today().addDays(10),
         'isComplete' => true,
         'doInsert' => true
       }
     );
 
-    // Create a todo for another account (should be excluded)
-    Todo_Item__c otherTodo = TestFactory.getTodoItem(
+    Todo_Item__c otherTodo = TestFactory.getAccountWithTodoItem(
       new Map<String, Object>{
         'name' => 'Other Account Task',
-        'relatedRecord' => acc2,
         'dueDate' => Date.today(),
         'isComplete' => false,
         'doInsert' => true
@@ -44,7 +32,9 @@ private class TodoCtrlTest {
     );
 
     // Call the controller
-    List<Todo_Item__c> results = TodoCtrl.getTodoItems(acc1.Id);
+    List<Todo_Item__c> results = TodoCtrl.getTodoItems(
+      todosForAcc1[0].RelatedRecordId__c
+    );
 
     // Assertions: only the two incomplete items for acc1 should be returned
     System.assertEquals(
@@ -73,7 +63,7 @@ private class TodoCtrlTest {
         'Returned items must be incomplete'
       );
       System.assertEquals(
-        acc1.Id,
+        todosForAcc1[0].RelatedRecordId__c,
         t.RelatedRecordId__c,
         'RelatedRecordId__c should match the requested record'
       );
@@ -113,21 +103,18 @@ private class TodoCtrlTest {
 
   @IsTest
   static void testGetTodoItemsWithMixedItems() {
-    // Create account
-    Account acc = TestFactory.getAccount('Mixed Account', true);
-
-    // Create mixed complete and incomplete todos
-    TestFactory.generateMixedTodoItems(
+    List<Todo_Item__c> todos = TestFactory.generateMixedTodoItems(
       new Map<String, Object>{
         'numComplete' => 3,
         'numIncomplete' => 5,
-        'relatedRecordId' => acc.Id,
         'doInsert' => true
       }
     );
 
     // Get todos - should only return incomplete ones
-    List<Todo_Item__c> results = TodoCtrl.getTodoItems(acc.Id);
+    List<Todo_Item__c> results = TodoCtrl.getTodoItems(
+      todos[0].RelatedRecordId__c
+    );
 
     System.assertEquals(
       5,

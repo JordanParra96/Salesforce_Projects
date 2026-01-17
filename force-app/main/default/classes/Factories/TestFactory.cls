@@ -312,9 +312,11 @@ public class TestFactory {
    *               - doInsert: Whether to insert the Todo_Item__c into the database.
    * @return The created Todo_Item__c.
    */
-  public static Todo_Item__c getTodoItem(Map<String, Object> params) {
+  public static Todo_Item__c getAccountWithTodoItem(
+    Map<String, Object> params
+  ) {
     params.put('uow', uow);
-    return TestTodoItemFactory.getTodoItem(params);
+    return TestTodoItemFactory.getAccountWithTodoItem(params);
   }
 
   /**
