@@ -23,15 +23,17 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const branchName = context.payload.pull_request.head.ref;
-            let labelToAdd = '';
+            const branchType = branchName.split('/')[0];
 
-            if (branchName.startsWith('enh_')) {
-              labelToAdd = 'enhancement';
-            } else if (branchName.startsWith('mod_')) {
-              labelToAdd = 'module';
-            } else if (branchName.startsWith('proj_')) {
-              labelToAdd = 'project';
-            }
+            // Map branch prefix (before the "/") to the label to add.
+            // To support a new label, just add an entry here.
+            const typeToLabel = {
+              enhancement: 'enhancement',
+              module: 'module',
+              project: 'project'
+            };
+
+            const labelToAdd = typeToLabel[branchType];
 
             if (labelToAdd) {
               await github.rest.issues.addLabels({
